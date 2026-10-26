@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cenati Contabilidade - Gerenciador de Tarefas</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SheetJS para Leitura de Planilhas Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cenatiBG: '#BDE0FE',
+            cenati: {
+              50: '#f0f5ff',
+              100: '#e0ebff',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #BDE0FE !important;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-section, #print-section * {
+        visibility: visible;
+      }
+      #print-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <!-- Logo Cenati Oficial -->
+        <div class="flex items-center space-x-3">
+          <img id="cenati-logo-img" src="CAPA CENATI.png" alt="Cenati Contabilidade" class="h-14 w-auto object-contain rounded-lg" onerror="this.onerror=null; this.src='logo-cenati.jpg';">
+        </div>
+        <div class="hidden md:block border-l border-slate-200 h-8"></div>
+        <div class="hidden md:block">
+          <h1 class="text-lg font-bold text-slate-800 leading-none">Gestão de Rotinas Contábeis</h1>
+          <p class="text-xs text-slate-500 mt-1">Supervisão: Mayara Pimenta | Base Completa</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex items-center space-x-3">
+        <!-- Input invisível de arquivo para importação de planilha -->
+        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleFileImport(event)" class="hidden">
+        
+        <button onclick="document.getElementById('excel-file-input').click()" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+          <i class="fa-solid fa-file-import"></i>
+          <span>Importar Planilha</span>
+        </button>
+
+        <button onclick="openNewCompanyModal()" class="inline-flex items-center gap-2 bg-cenati-600 hover:bg-cenati-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+          <i class="fa-solid fa-plus"></i>
+          <span>Nova Empresa</span>
+        </button>
+        
+        <button onclick="exportTasksPDF()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+          <i class="fa-solid fa-file-pdf"></i>
+          <span>Relatório de Tarefas (PDF)</span>
+        </button>
+        
+        <button onclick="resetDataToDefault()" title="Zerar e restaurar dados iniciais" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+          <i class="fa-solid fa-rotate"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 no-print">
+
+    <!-- METRIC CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Empresas</p>
+          <h3 id="stat-total-empresas" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+          <p class="text-xs text-slate-500 mt-1">Cadastradas no sistema</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-cenati-600 flex items-center justify-center text-xl font-bold">
+          <i class="fa-solid fa-building"></i>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Taxa de Conformidade</p>
+          <h3 id="stat-conformidade" class="text-2xl font-bold text-emerald-600 mt-1">0%</h3>
+          <p class="text-xs text-slate-500 mt-1">Tarefas do mês concluídas</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tarefas Pendentes</p>
+          <h3 id="stat-pendentes" class="text-2xl font-bold text-amber-500 mt-1">0</h3>
+          <p class="text-xs text-slate-500 mt-1">Aguardando execução</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl font-bold">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tempo Total Registrado</p>
+          <h3 id="stat-tempo-total" class="text-2xl font-bold text-cenati-800 mt-1">0h 0m</h3>
+          <p class="text-xs text-slate-500 mt-1">Cronometrado na equipe</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
+          <i class="fa-solid fa-stopwatch"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TABS -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 px-6 pt-4 flex space-x-6">
+        <button id="tab-btn-lista" onclick="switchTab('lista')" class="pb-3 text-sm font-semibold border-b-2 border-cenati-600 text-cenati-600 flex items-center gap-2">
+          <i class="fa-solid fa-list-check"></i>
+          <span>Gerenciamento de Empresas e Rotinas</span>
+        </button>
+        <button id="tab-btn-charts" onclick="switchTab('charts')" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard de Desempenho & Métricas</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: LISTA -->
+      <div id="tab-content-lista" class="p-6 space-y-6">
+        
+        <!-- FILTROS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Buscar Empresa</label>
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+              <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Nome da empresa..." class="w-full pl-9 pr-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Regime Tributário</label>
+            <select id="filter-regime" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <option value="">Todos os Regimes</option>
+              <option value="Simples Nacional">Simples Nacional (S.N.)</option>
+              <option value="Lucro Presumido">Lucro Presumido (L.P.)</option>
+              <option value="Lucro Real">Lucro Real (L.R.)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Responsável</label>
+            <select id="filter-responsavel" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <option value="">Todos os Responsáveis</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Status Geral</label>
+            <select id="filter-status" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <option value="">Todas</option>
+              <option value="100%">100% Concluídas</option>
+              <option value="pendente">Com Pendências</option>
+              <option value="andamento">Em Andamento</option>
+            </select>
+          </div>
+
+          <div class="flex items-end">
+            <button onclick="clearFilters()" class="w-full py-1.5 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1">
+              <i class="fa-solid fa-filter-circle-xmark"></i>
+              <span>Limpar Filtros</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- TABELA -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 uppercase text-xs">
+              <tr>
+                <th class="py-3.5 px-4">Empresa</th>
+                <th class="py-3.5 px-3">Regime</th>
+                <th class="py-3.5 px-3">Prioridade</th>
+                <th class="py-3.5 px-3">Responsável</th>
+                <th class="py-3.5 px-3 text-center">Progresso</th>
+                <th class="py-3.5 px-3 text-center">Ações / Detalhes</th>
+              </tr>
+            </thead>
+            <tbody id="companies-table-body" class="divide-y divide-slate-200 bg-white">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PAGINAÇÃO -->
+        <div class="flex items-center justify-between border-t border-slate-200 pt-4 text-xs text-slate-500">
+          <div>
+            Exibindo <span id="page-start" class="font-semibold text-slate-800">1</span> até <span id="page-end" class="font-semibold text-slate-800">25</span> de <span id="total-count" class="font-semibold text-slate-800">0</span> empresas
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="btn-prev-page" onclick="changePage(-1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
+            </button>
+            <span class="px-2 font-medium">Página <span id="current-page-num">1</span> de <span id="total-pages-num">1</span></span>
+            <button id="btn-next-page" onclick="changePage(1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              Próximo <i class="fa-solid fa-chevron-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 2: DASHBOARD -->
+      <div id="tab-content-charts" class="p-6 space-y-6 hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-cenati-600"></i>
+              Status Global de Conformidade
+            </h4>
+            <div class="h-64 relative flex items-center justify-center">
+              <canvas id="chartConformidade"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-user-check text-cenati-600"></i>
+              Conclusão de Tarefas por Responsável
+            </h4>
+            <div class="h-64">
+              <canvas id="chartResponsavel"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 md:col-span-2">
+            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-clock-rotate-left text-cenati-600"></i>
+              Tempo Médio Executado por Departamento (Minutos)
+            </h4>
+            <div class="h-64">
+              <canvas id="chartTempoDepartamento"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE TAREFAS DE UMA EMPRESA -->
+  <div id="modal-company" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+      
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div>
+          <h3 id="modal-company-name" class="text-lg font-bold">Nome da Empresa</h3>
+          <p id="modal-company-info" class="text-xs text-slate-300">Regime: S.N | Responsável: Gabriel</p>
+        </div>
+        <button onclick="closeCompanyModal()" class="text-slate-400 hover:text-white text-xl">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto flex-1 space-y-6 custom-scrollbar">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterDeptModal('ALL')" class="dept-btn active-dept px-3 py-1.5 text-xs font-semibold rounded-lg bg-cenati-600 text-white">Todos</button>
+            <button onclick="filterDeptModal('FOLHA')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Folha de Pagamento</button>
+            <button onclick="filterDeptModal('FISCAL')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Fiscal</button>
+            <button onclick="filterDeptModal('CONTABILIDADE')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Contabilidade</button>
+            <button onclick="filterDeptModal('SOLICITACOES')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Solicitação de Extratos</button>
+          </div>
+
+          <button onclick="openNewTaskModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-plus text-xs"></i>
+            <span>Nova Tarefa</span>
+          </button>
+        </div>
+
+        <div id="modal-tasks-list" class="space-y-3">
+        </div>
+      </div>
+
+      <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs text-slate-500">
+        <div>
+          <span>Tempo total investido nesta empresa: </span>
+          <strong id="modal-total-time" class="text-slate-800 text-sm">0m 0s</strong>
+        </div>
+        <button onclick="closeCompanyModal()" class="px-4 py-2 bg-slate-800 text-white text-xs font-medium rounded-lg hover:bg-slate-700">
+          Fechar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL PARA CADASTRAR NOVA EMPRESA -->
+  <div id="modal-add-company" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+      <div class="bg-cenati-900 text-white px-6 py-4 flex items-center justify-between">
+        <h3 class="text-base font-bold flex items-center gap-2">
+          <i class="fa-solid fa-building-circle-check"></i>
+          Cadastrar Nova Empresa
+        </h3>
+        <button onclick="closeNewCompanyModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="saveNewCompany(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Razão Social / Nome da Empresa *</label>
+          <input type="text" id="new-comp-name" required placeholder="Ex: ABC SERVICOS CONTABEIS LTDA" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Regime Tributário *</label>
+          <select id="new-comp-regime" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+            <option value="Simples Nacional">Simples Nacional</option>
+            <option value="Lucro Presumido">Lucro Presumido</option>
+            <option value="Lucro Real">Lucro Real</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Prioridade *</label>
+            <select id="new-comp-priority" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <option value="1">Alta (1)</option>
+              <option value="2" selected>Média (2)</option>
+              <option value="3">Baixa (3)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Responsável *</label>
+            <select id="new-comp-resp" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <option value="OSVALDO">OSVALDO</option>
+              <option value="GABRIEL">GABRIEL</option>
+              <option value="MAYARA PIMENTA">MAYARA PIMENTA</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-400 bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <i class="fa-solid fa-circle-info text-cenati-600 mr-1"></i>
+          Ao cadastrar a empresa, toda a grade de subtarefas dos departamentos (Folha, Fiscal, Contabilidade, Extratos) será gerada automaticamente.
+        </p>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
+          <button type="button" onclick="closeNewCompanyModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-300">
+            Cancelar
+          </button>
+          <button type="submit" class="px-4 py-2 bg-cenati-600 text-white text-xs font-semibold rounded-lg hover:bg-cenati-700 shadow-sm">
+            Salvar Empresa
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL PARA ADICIONAR NOVA TAREFA EM UMA EMPRESA -->
+  <div id="modal-add-task" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <h3 class="text-base font-bold flex items-center gap-2">
+          <i class="fa-solid fa-list-check"></i>
+          Criar Nova Tarefa
+        </h3>
+        <button onclick="closeNewTaskModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="saveNewTask(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Departamento *</label>
+          <select id="new-task-dept" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+            <option value="FOLHA">Folha de Pagamento</option>
+            <option value="FISCAL">Fiscal</option>
+            <option value="CONTABILIDADE">Contabilidade</option>
+            <option value="SOLICITACOES">Solicitações de Documentos</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Título da Tarefa *</label>
+          <input type="text" id="new-task-title" required placeholder="Ex: Conciliação de Cartão de Crédito" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Data de Vencimento *</label>
+          <input type="date" id="new-task-duedate" required value="2026-10-31" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
+          <button type="button" onclick="closeNewTaskModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-300">
+            Cancelar
+          </button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 shadow-sm">
+            Adicionar Tarefa
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONTAINER DE IMPRESSÃO DO RELATÓRIO -->
+  <div id="print-section" class="hidden p-8 bg-white text-slate-800"></div>
+
+  <script>
+    const DEPARTMENTS = {
+      FOLHA: {
+        title: 'Folha de Pagamento',
+        tasks: ['Contabilização da Folha', 'Contabilização Encargos', 'Erros de Rubricas', 'Pagamentos Folha/Encargos']
+      },
+      FISCAL: {
+        title: 'Fiscal',
+        tasks: ['Conferência de Entradas', 'Conferência de Saídas', 'Conferência Faturamento', 'Parâmetros de Acumuladores', 'Contabilização Entradas/Saídas', 'Conferência/Pagamentos de Impostos']
+      },
+      CONTABILIDADE: {
+        title: 'Contabilidade',
+        tasks: ['Capital Social', 'Honorários Contábeis', 'Ativo Imobilizado', 'Estouro de Caixa (diário)', 'Conciliação de Parcelamentos', 'Conciliação de Adiantamentos à Fornecedores', 'Conciliação de Adiantamentos de Clientes', 'Conciliação Fornecedores', 'Conciliação Clientes', 'Conciliação Bancária', 'Aplicação Financeira', 'Depreciações', 'CMV/CPV', 'Emissão de Balancete']
+      },
+      SOLICITACOES: {
+        title: 'Solicitações de Documentos',
+        tasks: ['SOLICITAÇÃO DE EXTRATOS BANCÁRIOS']
+      }
+    };
+
+    let companies = [];
+    let currentPage = 1;
+    const pageSize = 25;
+    let selectedCompanyId = null;
+    let activeDeptFilterModal = 'ALL';
+    let timerIntervals = {};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      populateResponsavelFilter();
+      applyFilters();
+      initCharts();
+    });
+
+    function loadData() {
+      const stored = localStorage.getItem('cenati_companies_db_v2');
+      if (stored) {
+        try {
+          companies = JSON.parse(stored);
+        } catch(e) {
+          companies = [];
+        }
+      } else {
+        companies = [];
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('cenati_companies_db_v2', JSON.stringify(companies));
+    }
+
+    function resetDataToDefault() {
+      if(confirm("Deseja zerar todas as tarefas e limpar a base de empresas?")) {
+        localStorage.removeItem('cenati_companies_db_v2');
+        companies = [];
+        saveData();
+        populateResponsavelFilter();
+        applyFilters();
+        updateCharts();
+        alert("Base de dados zerada com sucesso!");
+      }
+    }
+
+    // FUNÇÃO PARA IMPORTAR PLANILHAS EXCEL (XLSX, XLS, CSV)
+    function handleFileImport(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Converter a planilha em matriz de linhas
+          const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          
+          if (!rows || rows.length === 0) {
+            alert("A planilha importada está vazia!");
+            return;
+          }
+
+          let addedCount = 0;
+          let startRow = 0;
+
+          // Verificar se linha 0 ou 1 é o cabeçalho real
+          for (let i = 0; i < Math.min(rows.length, 5); i++) {
+            const firstCell = String(rows[i][0] || '').toLowerCase();
+            if (firstCell.includes('empresa') || firstCell.includes('razão') || firstCell.includes('razao')) {
+              startRow = i + 1;
+              break;
+            }
+          }
+
+          if (startRow === 0 && rows.length > 2 && String(rows[0][0]).includes('CADASTRO')) {
+            startRow = 2; // Estrutura do empresas_tarefas.xlsx
+          }
+
+          rows.slice(startRow).forEach((row, idx) => {
+            const compName = String(row[0] || '').trim();
+            if (!compName || compName.toLowerCase() === 'empresa') return;
+
+            const regimeRaw = String(row[1] || 'Simples Nacional').trim();
+            let regime = 'Simples Nacional';
+            if (regimeRaw.toUpperCase().includes('L P') || regimeRaw.toUpperCase().includes('PRESUMIDO')) regime = 'Lucro Presumido';
+            else if (regimeRaw.toUpperCase().includes('L R') || regimeRaw.toUpperCase().includes('REAL')) regime = 'Lucro Real';
+
+            let priority = parseInt(row[2]) || 2;
+            if (![1, 2, 3].includes(priority)) priority = 2;
+
+            const resp = String(row[3] || 'OSVALDO').trim().toUpperCase();
+
+            // Gerar lista padrão de tarefas para a nova empresa
+            let tasksList = [];
+            let tCounter = 1;
+            Object.keys(DEPARTMENTS).forEach(deptKey => {
+              DEPARTMENTS[deptKey].tasks.forEach(taskName => {
+                tasksList.push({
+                  id: tCounter++,
+                  department: deptKey,
+                  title: taskName,
+                  status: 'pending',
+                  dueDate: '2026-10-31',
+                  startTime: null,
+                  elapsedSeconds: 0
+                });
+              });
+            });
+
+            // Adicionar ou atualizar empresa
+            const existingIdx = companies.findIndex(c => c.name.toUpperCase() === compName.toUpperCase());
+            if (existingIdx >= 0) {
+              companies[existingIdx].regime = regime;
+              companies[existingIdx].priority = priority;
+              companies[existingIdx].resp = resp;
+            } else {
+              companies.push({
+                id: Date.now() + idx,
+                name: compName.toUpperCase(),
+                regime: regime,
+                priority: priority,
+                resp: resp,
+                tasks: tasksList
+              });
+              addedCount++;
+            }
+          });
+
+          saveData();
+          populateResponsavelFilter();
+          applyFilters();
+          alert(`Importação concluída com sucesso!\n\nForam processadas e adicionadas/atualizadas empresas na sua base.`);
+          e.target.value = ''; // Limpar input
+        } catch (err) {
+          console.error(err);
+          alert("Erro ao ler o arquivo Excel. Verifique se o formato é válido.");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function populateResponsavelFilter() {
+      const resps = [...new Set(companies.map(c => c.resp))].filter(Boolean);
+      const select = document.getElementById('filter-responsavel');
+      select.innerHTML = '<option value="">Todos os Responsáveis</option>';
+      resps.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = r;
+        select.appendChild(opt);
+      });
+    }
+
+    let filteredCompanies = [];
+
+    function applyFilters() {
+      const search = document.getElementById('filter-search').value.toLowerCase();
+      const regime = document.getElementById('filter-regime').value;
+      const resp = document.getElementById('filter-responsavel').value;
+      const status = document.getElementById('filter-status').value;
+
+      filteredCompanies = companies.filter(comp => {
+        const matchesSearch = comp.name.toLowerCase().includes(search);
+        const matchesRegime = !regime || comp.regime.toLowerCase().includes(regime.toLowerCase());
+        const matchesResp = !resp || comp.resp === resp;
+
+        let matchesStatus = true;
+        const completedCount = comp.tasks.filter(t => t.status === 'completed').length;
+        const totalTasks = comp.tasks.length;
+        const is100 = completedCount === totalTasks && totalTasks > 0;
+        const hasRunning = comp.tasks.some(t => t.status === 'running');
+
+        if (status === '100%') matchesStatus = is100;
+        if (status === 'pendente') matchesStatus = !is100;
+        if (status === 'andamento') matchesStatus = hasRunning;
+
+        return matchesSearch && matchesRegime && matchesResp && matchesStatus;
+      });
+
+      currentPage = 1;
+      renderTable();
+      updateDashboardMetrics();
+    }
+
+    function clearFilters() {
+      document.getElementById('filter-search').value = '';
+      document.getElementById('filter-regime').value = '';
+      document.getElementById('filter-responsavel').value = '';
+      document.getElementById('filter-status').value = '';
+      applyFilters();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('companies-table-body');
+      tbody.innerHTML = '';
+
+      const total = filteredCompanies.length;
+      const totalPages = Math.ceil(total / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * pageSize;
+      const end = Math.min(start + pageSize, total);
+      const pageData = filteredCompanies.slice(start, end);
+
+      document.getElementById('page-start').textContent = total === 0 ? 0 : start + 1;
+      document.getElementById('page-end').textContent = end;
+      document.getElementById('total-count').textContent = total;
+      document.getElementById('current-page-num').textContent = currentPage;
+      document.getElementById('total-pages-num').textContent = totalPages;
+
+      document.getElementById('btn-prev-page').disabled = currentPage === 1;
+      document.getElementById('btn-next-page').disabled = currentPage === totalPages || totalPages === 0;
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-8 text-slate-400">
+              Nenhuma empresa cadastrada ou encontrada. Clique em <b>"Importar Planilha"</b> ou <b>"Nova Empresa"</b> para adicionar.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      pageData.forEach(comp => {
+        const completedCount = comp.tasks.filter(t => t.status === 'completed').length;
+        const totalTasks = comp.tasks.length;
+        const percent = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
+
+        let priorityBadge = '';
+        if (comp.priority === 1) priorityBadge = '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-red-100 text-red-700">Alta (1)</span>';
+        else if (comp.priority === 2) priorityBadge = '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-amber-100 text-amber-700">Média (2)</span>';
+        else priorityBadge = '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-100 text-slate-600">Baixa (3)</span>';
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition-colors";
+        tr.innerHTML = `
+          <td class="py-3.5 px-4 font-semibold text-slate-800">${comp.name}</td>
+          <td class="py-3.5 px-3">
+            <span class="px-2 py-1 text-xs font-medium rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
+              ${comp.regime}
+            </span>
+          </td>
+          <td class="py-3.5 px-3">${priorityBadge}</td>
+          <td class="py-3.5 px-3 text-xs font-medium text-slate-600">${comp.resp}</td>
+          <td class="py-3.5 px-3 text-center">
+            <div class="flex items-center justify-center space-x-2">
+              <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div class="bg-cenati-600 h-full rounded-full" style="width: ${percent}%"></div>
+              </div>
+              <span class="text-xs font-bold ${percent === 100 ? 'text-emerald-600' : 'text-slate-600'}">${percent}%</span>
+            </div>
+          </td>
+          <td class="py-3.5 px-3 text-center">
+            <button onclick="openCompanyModal(${comp.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-cenati-600 hover:text-white bg-cenati-50 hover:bg-cenati-600 rounded-lg transition-all border border-cenati-100">
+              <i class="fa-solid fa-folder-open"></i>
+              <span>Gerenciar Tarefas</span>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderTable();
+    }
+
+    function openCompanyModal(companyId) {
+      selectedCompanyId = companyId;
+      const comp = companies.find(c => c.id === companyId);
+      if (!comp) return;
+
+      document.getElementById('modal-company-name').textContent = comp.name;
+      document.getElementById('modal-company-info').textContent = `Regime: ${comp.regime} | Prioridade: ${comp.priority} | Responsável: ${comp.resp}`;
+      
+      activeDeptFilterModal = 'ALL';
+      updateModalDeptButtons();
+      renderModalTasks();
+
+      document.getElementById('modal-company').classList.remove('hidden');
+    }
+
+    function closeCompanyModal() {
+      document.getElementById('modal-company').classList.add('hidden');
+      selectedCompanyId = null;
+      applyFilters();
+    }
+
+    function filterDeptModal(dept) {
+      activeDeptFilterModal = dept;
+      updateModalDeptButtons();
+      renderModalTasks();
+    }
+
+    function updateModalDeptButtons() {
+      const btns = document.querySelectorAll('.dept-btn');
+      btns.forEach(b => {
+        b.className = "dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors";
+      });
+      event?.target?.classList?.remove('bg-slate-100', 'text-slate-600');
+      event?.target?.classList?.add('bg-cenati-600', 'text-white');
+    }
+
+    function renderModalTasks() {
+      const comp = companies.find(c => c.id === selectedCompanyId);
+      if (!comp) return;
+
+      const container = document.getElementById('modal-tasks-list');
+      container.innerHTML = '';
+
+      let filteredTasks = comp.tasks;
+      if (activeDeptFilterModal !== 'ALL') {
+        filteredTasks = comp.tasks.filter(t => t.department === activeDeptFilterModal);
+      }
+
+      let grandTotalTime = comp.tasks.reduce((acc, t) => acc + (t.elapsedSeconds || 0), 0);
+      document.getElementById('modal-total-time').textContent = formatSeconds(grandTotalTime);
+
+      if (filteredTasks.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">Nenhuma tarefa encontrada neste departamento.</p>';
+        return;
+      }
+
+      filteredTasks.forEach(task => {
+        let deptTitle = task.department;
+        if (task.department === 'FOLHA') deptTitle = 'Folha de Pagamento';
+        if (task.department === 'FISCAL') deptTitle = 'Fiscal';
+        if (task.department === 'CONTABILIDADE') deptTitle = 'Contabilidade';
+        if (task.department === 'SOLICITACOES') deptTitle = 'Solicitações de Documentos';
+
+        const isCompleted = task.status === 'completed';
+        const isRunning = task.status === 'running';
+
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${
+          isCompleted ? 'bg-emerald-50/50 border-emerald-200' : isRunning ? 'bg-blue-50/50 border-blue-300 ring-2 ring-blue-200' : 'bg-white border-slate-200'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-start space-x-3">
+            <button onclick="toggleTaskComplete(${task.id})" class="mt-1 w-5 h-5 rounded flex items-center justify-center border transition-all ${
+              isCompleted ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-300 hover:border-cenati-500'
+            }">
+              ${isCompleted ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+            </button>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-cenati-600">${deptTitle}</p>
+              <h5 class="text-sm font-bold text-slate-800 ${isCompleted ? 'line-through text-slate-400' : ''}">${task.title}</h5>
+              <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                <span>Vencimento: ${task.dueDate}</span>
+                <span>•</span>
+                <span id="timer-display-${task.id}" class="font-mono ${isRunning ? 'text-blue-600 font-bold' : ''}">
+                  Tempo: ${formatSeconds(task.elapsedSeconds)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 self-end sm:self-center">
+            ${!isCompleted ? `
+              ${!isRunning ? `
+                <button onclick="startTimer(${task.id})" class="px-3 py-1.5 bg-cenati-600 hover:bg-cenati-700 text-white text-xs font-medium rounded-lg flex items-center gap-1 shadow-sm">
+                  <i class="fa-solid fa-play text-xs"></i> Iniciar
+                </button>
+              ` : `
+                <button onclick="stopTimer(${task.id})" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium rounded-lg flex items-center gap-1 shadow-sm">
+                  <i class="fa-solid fa-pause text-xs"></i> Pausar
+                </button>
+              `}
+              <button onclick="toggleTaskComplete(${task.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg flex items-center gap-1 shadow-sm">
+                <i class="fa-solid fa-check text-xs"></i> Concluir
+              </button>
+            ` : `
+              <span class="px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-lg flex items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i> Concluído
+              </span>
+            `}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function openNewCompanyModal() {
+      document.getElementById('modal-add-company').classList.remove('hidden');
+    }
+
+    function closeNewCompanyModal() {
+      document.getElementById('modal-add-company').classList.add('hidden');
+    }
+
+    function saveNewCompany(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-comp-name').value.trim();
+      const regime = document.getElementById('new-comp-regime').value;
+      const priority = parseInt(document.getElementById('new-comp-priority').value);
+      const resp = document.getElementById('new-comp-resp').value;
+
+      if (!name) return;
+
+      const newId = Date.now();
+      let tasksList = [];
+      let idCounter = 1;
+
+      Object.keys(DEPARTMENTS).forEach(deptKey => {
+        DEPARTMENTS[deptKey].tasks.forEach(taskName => {
+          tasksList.push({
+            id: idCounter++,
+            department: deptKey,
+            title: taskName,
+            status: 'pending',
+            dueDate: '2026-10-31',
+            startTime: null,
+            elapsedSeconds: 0
+          });
+        });
+      });
+
+      const newComp = {
+        id: newId,
+        name: name.toUpperCase(),
+        regime: regime,
+        priority: priority,
+        resp: resp,
+        tasks: tasksList
+      };
+
+      companies.unshift(newComp);
+      saveData();
+      populateResponsavelFilter();
+      applyFilters();
+      closeNewCompanyModal();
+      document.getElementById('new-comp-name').value = '';
+      alert(`Empresa "${newComp.name}" cadastrada com sucesso!`);
+    }
+
+    function openNewTaskModal() {
+      document.getElementById('modal-add-task').classList.remove('hidden');
+    }
+
+    function closeNewTaskModal() {
+      document.getElementById('modal-add-task').classList.add('hidden');
+    }
+
+    function saveNewTask(e) {
+      e.preventDefault();
+      const comp = companies.find(c => c.id === selectedCompanyId);
+      if (!comp) return;
+
+      const dept = document.getElementById('new-task-dept').value;
+      const title = document.getElementById('new-task-title').value.trim();
+      const dueDate = document.getElementById('new-task-duedate').value;
+
+      if (!title) return;
+
+      const newTaskId = Date.now();
+      comp.tasks.push({
+        id: newTaskId,
+        department: dept,
+        title: title,
+        status: 'pending',
+        dueDate: dueDate || '2026-10-31',
+        startTime: null,
+        elapsedSeconds: 0
+      });
+
+      saveData();
+      renderModalTasks();
+      closeNewTaskModal();
+      document.getElementById('new-task-title').value = '';
+    }
+
+    function startTimer(taskId) {
+      const comp = companies.find(c => c.id === selectedCompanyId);
+      if (!comp) return;
+      const task = comp.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      task.status = 'running';
+      task.startTime = Date.now();
+      saveData();
+
+      if (timerIntervals[taskId]) clearInterval(timerIntervals[taskId]);
+
+      timerIntervals[taskId] = setInterval(() => {
+        task.elapsedSeconds += 1;
+        const display = document.getElementById(`timer-display-${taskId}`);
+        if (display) {
+          display.textContent = `Tempo: ${formatSeconds(task.elapsedSeconds)}`;
+        }
+      }, 1000);
+
+      renderModalTasks();
+    }
+
+    function stopTimer(taskId) {
+      const comp = companies.find(c => c.id === selectedCompanyId);
+      if (!comp) return;
+      const task = comp.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      task.status = 'pending';
+      if (timerIntervals[taskId]) {
+        clearInterval(timerIntervals[taskId]);
+        delete timerIntervals[taskId];
+      }
+      saveData();
+      renderModalTasks();
+    }
+
+    function toggleTaskComplete(taskId) {
+      const comp = companies.find(c => c.id === selectedCompanyId);
+      if (!comp) return;
+      const task = comp.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      if (timerIntervals[taskId]) {
+        clearInterval(timerIntervals[taskId]);
+        delete timerIntervals[taskId];
+      }
+
+      if (task.status === 'completed') {
+        task.status = 'pending';
+      } else {
+        task.status = 'completed';
+      }
+
+      saveData();
+      renderModalTasks();
+      updateDashboardMetrics();
+    }
+
+    function formatSeconds(secs) {
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = secs % 60;
+      if (h > 0) return `${h}h ${m}m ${s}s`;
+      return `${m}m ${s}s`;
+    }
+
+    function updateDashboardMetrics() {
+      const totalComp = companies.length;
+      let totalTasks = 0;
+      let completedTasks = 0;
+      let totalSeconds = 0;
+
+      companies.forEach(c => {
+        c.tasks.forEach(t => {
+          totalTasks++;
+          if (t.status === 'completed') completedTasks++;
+          totalSeconds += (t.elapsedSeconds || 0);
+        });
+      });
+
+      const rate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      const hours = Math.floor(totalSeconds / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+
+      document.getElementById('stat-total-empresas').textContent = totalComp;
+      document.getElementById('stat-conformidade').textContent = `${rate}%`;
+      document.getElementById('stat-pendentes').textContent = totalTasks - completedTasks;
+      document.getElementById('stat-tempo-total').textContent = `${hours}h ${mins}m`;
+
+      updateCharts();
+    }
+
+    let chart1, chart2, chart3;
+
+    function switchTab(tab) {
+      const btnLista = document.getElementById('tab-btn-lista');
+      const btnCharts = document.getElementById('tab-btn-charts');
+      const contentLista = document.getElementById('tab-content-lista');
+      const contentCharts = document.getElementById('tab-content-charts');
+
+      if (tab === 'lista') {
+        btnLista.className = "pb-3 text-sm font-semibold border-b-2 border-cenati-600 text-cenati-600 flex items-center gap-2";
+        btnCharts.className = "pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2";
+        contentLista.classList.remove('hidden');
+        contentCharts.classList.add('hidden');
+      } else {
+        btnCharts.className = "pb-3 text-sm font-semibold border-b-2 border-cenati-600 text-cenati-600 flex items-center gap-2";
+        btnLista.className = "pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2";
+        contentCharts.classList.remove('hidden');
+        contentLista.classList.add('hidden');
+        updateCharts();
+      }
+    }
+
+    function initCharts() {
+      const ctx1 = document.getElementById('chartConformidade').getContext('2d');
+      chart1 = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Concluídas', 'Pendentes'],
+          datasets: [{
+            data: [0, 1],
+            backgroundColor: ['#10b981', '#f59e0b']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      const ctx2 = document.getElementById('chartResponsavel').getContext('2d');
+      chart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Tarefas Concluídas',
+            data: [],
+            backgroundColor: '#2563eb'
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      const ctx3 = document.getElementById('chartTempoDepartamento').getContext('2d');
+      chart3 = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: ['Folha', 'Fiscal', 'Contabilidade', 'Solicitações'],
+          datasets: [{
+            label: 'Minutos Totais',
+            data: [0, 0, 0, 0],
+            backgroundColor: '#1e40af'
+          }]
+        },
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+      });
+
+      updateCharts();
+    }
+
+    function updateCharts() {
+      if (!chart1) return;
+
+      let completed = 0;
+      let pending = 0;
+      let respMap = {};
+      let deptTime = { FOLHA: 0, FISCAL: 0, CONTABILIDADE: 0, SOLICITACOES: 0 };
+
+      companies.forEach(c => {
+        if (!respMap[c.resp]) respMap[c.resp] = 0;
+
+        c.tasks.forEach(t => {
+          if (t.status === 'completed') {
+            completed++;
+            respMap[c.resp]++;
+          } else {
+            pending++;
+          }
+          if (deptTime[t.department] !== undefined) {
+            deptTime[t.department] += Math.round((t.elapsedSeconds || 0) / 60);
+          }
+        });
+      });
+
+      chart1.data.datasets[0].data = [completed, pending];
+      chart1.update();
+
+      chart2.data.labels = Object.keys(respMap);
+      chart2.data.datasets[0].data = Object.values(respMap);
+      chart2.update();
+
+      chart3.data.datasets[0].data = [
+        deptTime.FOLHA,
+        deptTime.FISCAL,
+        deptTime.CONTABILIDADE,
+        deptTime.SOLICITACOES
+      ];
+      chart3.update();
+    }
+
+    function exportTasksPDF() {
+      const now = new Date();
+      const todayStr = now.toLocaleDateString('pt-BR');
+      const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+      let totalTasks = 0;
+      let completedTasks = 0;
+      let totalSeconds = 0;
+
+      let activeMovements = [];
+
+      companies.forEach(c => {
+        c.tasks.forEach(t => {
+          totalTasks++;
+          if (t.status === 'completed') {
+            completedTasks++;
+          }
+          totalSeconds += (t.elapsedSeconds || 0);
+
+          if (t.status === 'completed' || t.status === 'running' || t.elapsedSeconds > 0) {
+            let deptTitle = t.department;
+            if (t.department === 'FOLHA') deptTitle = 'Folha de Pagamento';
+            if (t.department === 'FISCAL') deptTitle = 'Fiscal';
+            if (t.department === 'CONTABILIDADE') deptTitle = 'Contabilidade';
+            if (t.department === 'SOLICITACOES') deptTitle = 'Solicitações de Documentos';
+
+            activeMovements.push({
+              companyName: c.name,
+              regime: c.regime,
+              resp: c.resp,
+              deptTitle: deptTitle,
+              taskTitle: t.title,
+              status: t.status === 'completed' ? 'Concluído' : 'Em Andamento',
+              timeSpent: formatSeconds(t.elapsedSeconds)
+            });
+          }
+        });
+      });
+
+      const rate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      const printContainer = document.getElementById('print-section');
+      const logoImgSrc = document.getElementById('cenati-logo-img')?.src || 'CAPA CENATI.png';
+
+      printContainer.innerHTML = `
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; color: #1e293b;">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 12px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="${logoImgSrc}" alt="Cenati Logo" style="height: 50px; width: auto; object-fit: contain;">
+              <div>
+                <h1 style="color: #1e3a8a; font-size: 18px; font-weight: bold; margin: 0;">CENATI CONTABILIDADE</h1>
+                <p style="color: #64748b; font-size: 11px; margin: 2px 0 0 0;">Relatório de Acompanhamento de Tarefas e Movimentações</p>
+              </div>
+            </div>
+            <div style="text-align: right; font-size: 11px; color: #475569;">
+              <p style="margin: 0;">Emissão: <strong>${todayStr} às ${timeStr}</strong></p>
+              <p style="margin: 2px 0 0 0;">Tarefas Movimentadas: <strong>${activeMovements.length}</strong></p>
+            </div>
+          </div>
+
+          <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 12px; font-weight: bold; text-transform: uppercase;">Resumo do Período</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+              <tr>
+                <td style="padding: 3px 0;">Taxa de Conformidade Global:</td>
+                <td style="font-weight: bold; color: #10b981;">${rate}%</td>
+                <td style="padding: 3px 0;">Rotinas Concluídas:</td>
+                <td style="font-weight: bold;">${completedTasks} de ${totalTasks}</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px 0;">Tempo Total Registrado:</td>
+                <td style="font-weight: bold; color: #1e3a8a;">${formatSeconds(totalSeconds)}</td>
+                <td style="padding: 3px 0;">Movimentações Realizadas:</td>
+                <td style="font-weight: bold; color: #2563eb;">${activeMovements.length}</td>
+              </tr>
+            </table>
+          </div>
+
+          <h3 style="color: #1e3a8a; font-size: 12px; font-weight: bold; margin: 0 0 8px 0; text-transform: uppercase;">Detalhamento das Tarefas Movimentadas</h3>
+          
+          ${activeMovements.length === 0 ? `
+            <div style="padding: 20px; text-align: center; border: 1px dashed #cbd5e1; border-radius: 6px; color: #64748b; font-size: 11px;">
+              Nenhuma tarefa foi iniciada ou concluída até o momento.
+            </div>
+          ` : `
+            <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+              <thead>
+                <tr style="background-color: #f1f5f9; border-bottom: 1.5px solid #94a3b8;">
+                  <th style="padding: 6px; border: 1px solid #e2e8f0;">Empresa</th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0;">Responsável</th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0;">Departamento / Tarefa</th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0;">Status</th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0;">Tempo Dedicado</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${activeMovements.map(m => `
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">${m.companyName}</td>
+                    <td style="padding: 6px; border: 1px solid #e2e8f0;">${m.resp}</td>
+                    <td style="padding: 6px; border: 1px solid #e2e8f0;"><strong>${m.deptTitle}</strong><br><span style="color: #475569;">${m.taskTitle}</span></td>
+                    <td style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold; color: ${m.status === 'Concluído' ? '#10b981' : '#2563eb'};">${m.status}</td>
+                    <td style="padding: 6px; border: 1px solid #e2e8f0; font-family: monospace;">${m.timeSpent}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `}
+
+          <div style="margin-top: 40px; text-align: right; font-size: 11px; color: #334155;">
+            <div style="border-top: 1px solid #94a3b8; display: inline-block; width: 240px; text-align: center; padding-top: 4px;">
+              <strong>Mayara Pimenta</strong><br>
+              <span style="font-size: 9px; color: #64748b;">Responsável pelas Análises Contábeis</span>
+            </div>
+          </div>
+
+        </div>
+      `;
+
+      printContainer.classList.remove('hidden');
+      window.print();
+      printContainer.classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
