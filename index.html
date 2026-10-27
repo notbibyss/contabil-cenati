@@ -75,388 +75,465 @@
 </head>
 <body class="font-sans min-h-screen flex flex-col">
 
-  <!-- HEADER -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <!-- Logo Cenati Oficial -->
-        <div class="flex items-center space-x-3">
-          <img id="cenati-logo-img" src="Files\logo-cenati.jpeg" alt="Cenati Contabilidade" class="h-14 w-auto object-contain rounded-lg" onerror="this.onerror=null; this.src='logo-cenati.jpg';">
+  <!-- TELA DE LOGIN -->
+  <div id="login-overlay" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
+      <div class="bg-cenati-900 text-white px-8 py-6 text-center space-y-2">
+        <div class="w-16 h-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold">
+          <i class="fa-solid fa-shield-halved"></i>
         </div>
-        <div class="hidden md:block border-l border-slate-200 h-8"></div>
-        <div class="hidden md:block">
-          <h1 class="text-lg font-bold text-slate-800 leading-none">Gestão de Rotinas Contábeis</h1>
-          <p class="text-xs text-slate-500 mt-1">Supervisão: Mayara Pimenta | Base Completa</p>
-        </div>
+        <h2 class="text-xl font-bold">Cenati Contabilidade</h2>
+        <p class="text-xs text-slate-300">Controle de Acesso e Auditoria de Tarefas</p>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="flex items-center space-x-3">
-        <!-- Input invisível de arquivo para importação de planilha -->
-        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleFileImport(event)" class="hidden">
-        
-        <button onclick="document.getElementById('excel-file-input').click()" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
-          <i class="fa-solid fa-file-import"></i>
-          <span>Importar Planilha</span>
-        </button>
-
-        <button onclick="openNewCompanyModal()" class="inline-flex items-center gap-2 bg-cenati-600 hover:bg-cenati-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
-          <i class="fa-solid fa-plus"></i>
-          <span>Nova Empresa</span>
-        </button>
-        
-        <button onclick="exportTasksPDF()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
-          <i class="fa-solid fa-file-pdf"></i>
-          <span>Relatório de Tarefas (PDF)</span>
-        </button>
-        
-        <button onclick="resetDataToDefault()" title="Zerar e restaurar dados iniciais" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-          <i class="fa-solid fa-rotate"></i>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 no-print">
-
-    <!-- METRIC CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Empresas</p>
-          <h3 id="stat-total-empresas" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
-          <p class="text-xs text-slate-500 mt-1">Cadastradas no sistema</p>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-blue-50 text-cenati-600 flex items-center justify-center text-xl font-bold">
-          <i class="fa-solid fa-building"></i>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Taxa de Conformidade</p>
-          <h3 id="stat-conformidade" class="text-2xl font-bold text-emerald-600 mt-1">0%</h3>
-          <p class="text-xs text-slate-500 mt-1">Tarefas do mês concluídas</p>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
-          <i class="fa-solid fa-circle-check"></i>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tarefas Pendentes</p>
-          <h3 id="stat-pendentes" class="text-2xl font-bold text-amber-500 mt-1">0</h3>
-          <p class="text-xs text-slate-500 mt-1">Aguardando execução</p>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl font-bold">
-          <i class="fa-solid fa-clock-rotate-left"></i>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tempo Total Registrado</p>
-          <h3 id="stat-tempo-total" class="text-2xl font-bold text-cenati-800 mt-1">0h 0m</h3>
-          <p class="text-xs text-slate-500 mt-1">Cronometrado na equipe</p>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
-          <i class="fa-solid fa-stopwatch"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- MAIN TABS -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="border-b border-slate-200 px-6 pt-4 flex space-x-6">
-        <button id="tab-btn-lista" onclick="switchTab('lista')" class="pb-3 text-sm font-semibold border-b-2 border-cenati-600 text-cenati-600 flex items-center gap-2">
-          <i class="fa-solid fa-list-check"></i>
-          <span>Gerenciamento de Empresas e Rotinas</span>
-        </button>
-        <button id="tab-btn-charts" onclick="switchTab('charts')" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2">
-          <i class="fa-solid fa-chart-pie"></i>
-          <span>Dashboard de Desempenho & Métricas</span>
-        </button>
-      </div>
-
-      <!-- TAB 1: LISTA -->
-      <div id="tab-content-lista" class="p-6 space-y-6">
-        
-        <!-- FILTROS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+      <div class="p-8">
+        <!-- FORM DE LOGIN -->
+        <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Buscar Empresa</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Usuário</label>
             <div class="relative">
-              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
-              <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Nome da empresa..." class="w-full pl-9 pr-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400 text-sm"></i>
+              <input type="text" id="login-user" required placeholder="Seu usuário..." class="w-full pl-10 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Regime Tributário</label>
-            <select id="filter-regime" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-              <option value="">Todos os Regimes</option>
-              <option value="Simples Nacional">Simples Nacional (S.N.)</option>
-              <option value="Lucro Presumido">Lucro Presumido (L.P.)</option>
-              <option value="Lucro Real">Lucro Real (L.R.)</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Responsável</label>
-            <select id="filter-responsavel" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-              <option value="">Todos os Responsáveis</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Status Geral</label>
-            <select id="filter-status" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-              <option value="">Todas</option>
-              <option value="100%">100% Concluídas</option>
-              <option value="pendente">Com Pendências</option>
-              <option value="andamento">Em Andamento</option>
-            </select>
-          </div>
-
-          <div class="flex items-end">
-            <button onclick="clearFilters()" class="w-full py-1.5 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1">
-              <i class="fa-solid fa-filter-circle-xmark"></i>
-              <span>Limpar Filtros</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- TABELA -->
-        <div class="overflow-x-auto rounded-xl border border-slate-200">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 uppercase text-xs">
-              <tr>
-                <th class="py-3.5 px-4">Empresa</th>
-                <th class="py-3.5 px-3">Regime</th>
-                <th class="py-3.5 px-3">Prioridade</th>
-                <th class="py-3.5 px-3">Responsável</th>
-                <th class="py-3.5 px-3 text-center">Progresso</th>
-                <th class="py-3.5 px-3 text-center">Ações / Detalhes</th>
-              </tr>
-            </thead>
-            <tbody id="companies-table-body" class="divide-y divide-slate-200 bg-white">
-            </tbody>
-          </table>
-        </div>
-
-        <!-- PAGINAÇÃO -->
-        <div class="flex items-center justify-between border-t border-slate-200 pt-4 text-xs text-slate-500">
-          <div>
-            Exibindo <span id="page-start" class="font-semibold text-slate-800">1</span> até <span id="page-end" class="font-semibold text-slate-800">25</span> de <span id="total-count" class="font-semibold text-slate-800">0</span> empresas
-          </div>
-          <div class="flex items-center space-x-2">
-            <button id="btn-prev-page" onclick="changePage(-1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
-              <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
-            </button>
-            <span class="px-2 font-medium">Página <span id="current-page-num">1</span> de <span id="total-pages-num">1</span></span>
-            <button id="btn-next-page" onclick="changePage(1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
-              Próximo <i class="fa-solid fa-chevron-right ml-1"></i>
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- TAB 2: DASHBOARD -->
-      <div id="tab-content-charts" class="p-6 space-y-6 hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-            <h4 class="font-bold text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-chart-pie text-cenati-600"></i>
-              Status Global de Conformidade
-            </h4>
-            <div class="h-64 relative flex items-center justify-center">
-              <canvas id="chartConformidade"></canvas>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Senha</label>
+            <div class="relative">
+              <i class="fa-solid fa-key absolute left-3 top-3 text-slate-400 text-sm"></i>
+              <input type="password" id="login-pass" required placeholder="Sua senha..." class="w-full pl-10 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
             </div>
+            <p id="login-error" class="text-xs text-red-600 mt-1.5 hidden font-medium">Usuário ou senha incorretos.</p>
           </div>
 
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-            <h4 class="font-bold text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-user-check text-cenati-600"></i>
-              Conclusão de Tarefas por Responsável
-            </h4>
-            <div class="h-64">
-              <canvas id="chartResponsavel"></canvas>
-            </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 md:col-span-2">
-            <h4 class="font-bold text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-clock-rotate-left text-cenati-600"></i>
-              Tempo Médio Executado por Departamento (Minutos)
-            </h4>
-            <div class="h-64">
-              <canvas id="chartTempoDepartamento"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- MODAL DE TAREFAS DE UMA EMPRESA -->
-  <div id="modal-company" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-      
-      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
-        <div>
-          <h3 id="modal-company-name" class="text-lg font-bold">Nome da Empresa</h3>
-          <p id="modal-company-info" class="text-xs text-slate-300">Regime: S.N | Responsável: Gabriel</p>
-        </div>
-        <button onclick="closeCompanyModal()" class="text-slate-400 hover:text-white text-xl">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="p-6 overflow-y-auto flex-1 space-y-6 custom-scrollbar">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
-          <div class="flex flex-wrap gap-2">
-            <button onclick="filterDeptModal('ALL')" class="dept-btn active-dept px-3 py-1.5 text-xs font-semibold rounded-lg bg-cenati-600 text-white">Todos</button>
-            <button onclick="filterDeptModal('FOLHA')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Folha de Pagamento</button>
-            <button onclick="filterDeptModal('FISCAL')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Fiscal</button>
-            <button onclick="filterDeptModal('CONTABILIDADE')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Contabilidade</button>
-            <button onclick="filterDeptModal('SOLICITACOES')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Solicitação de Extratos</button>
-          </div>
-
-          <button onclick="openNewTaskModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 shadow-sm">
-            <i class="fa-solid fa-plus text-xs"></i>
-            <span>Nova Tarefa</span>
+          <button type="submit" class="w-full py-2.5 bg-cenati-600 hover:bg-cenati-700 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>Entrar no Sistema</span>
           </button>
-        </div>
 
-        <div id="modal-tasks-list" class="space-y-3">
-        </div>
+          <div class="text-center pt-2 border-t border-slate-100">
+            <button type="button" onclick="showRegisterView()" class="text-xs text-cenati-600 hover:underline font-semibold">
+              Não tem cadastro? Crie sua conta aqui
+            </button>
+          </div>
+        </form>
+
+        <!-- FORM DE CADASTRO DE NOVO USUÁRIO -->
+        <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nome Completo</label>
+            <input type="text" id="reg-name" required placeholder="Ex: Osvaldo Silva" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nome de Usuário (Login)</label>
+            <input type="text" id="reg-user" required placeholder="Ex: osvaldo" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Senha</label>
+            <input type="password" id="reg-pass" required placeholder="Crie uma senha..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+            <p id="reg-error" class="text-xs text-red-600 mt-1.5 hidden font-medium">Este usuário já existe.</p>
+          </div>
+
+          <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Cadastrar e Acessar</span>
+          </button>
+
+          <div class="text-center pt-2 border-t border-slate-100">
+            <button type="button" onclick="showLoginView()" class="text-xs text-cenati-600 hover:underline font-semibold">
+              Já possui cadastro? Faça o login
+            </button>
+          </div>
+        </form>
       </div>
-
-      <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs text-slate-500">
-        <div>
-          <span>Tempo total investido nesta empresa: </span>
-          <strong id="modal-total-time" class="text-slate-800 text-sm">0m 0s</strong>
-        </div>
-        <button onclick="closeCompanyModal()" class="px-4 py-2 bg-slate-800 text-white text-xs font-medium rounded-lg hover:bg-slate-700">
-          Fechar
-        </button>
-      </div>
-
     </div>
   </div>
 
-  <!-- MODAL PARA CADASTRAR NOVA EMPRESA -->
-  <div id="modal-add-company" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-      <div class="bg-cenati-900 text-white px-6 py-4 flex items-center justify-between">
-        <h3 class="text-base font-bold flex items-center gap-2">
-          <i class="fa-solid fa-building-circle-check"></i>
-          Cadastrar Nova Empresa
-        </h3>
-        <button onclick="closeNewCompanyModal()" class="text-slate-400 hover:text-white">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+  <!-- APLICAÇÃO PRINCIPAL -->
+  <div id="app-container" class="min-h-screen flex flex-col hidden">
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-3">
+            <img id="cenati-logo-img" src="./Files/logo-cenati.jpeg" alt="Cenati Contabilidade" class="h-14 w-auto object-contain rounded-lg" onerror="this.onerror=null; this.src='./Files/CAPA CENATI.png';">
+          </div>
+          <div class="hidden md:block border-l border-slate-200 h-8"></div>
+          <div class="hidden md:block">
+            <h1 class="text-lg font-bold text-slate-800 leading-none">Gestão de Rotinas Contábeis</h1>
+            <p class="text-xs text-slate-500 mt-1">Logado como: <strong id="current-user-badge" class="text-cenati-600">Usuário</strong></p>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex items-center space-x-3">
+          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleFileImport(event)" class="hidden">
+          
+          <button onclick="document.getElementById('excel-file-input').click()" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+            <i class="fa-solid fa-file-import"></i>
+            <span>Importar Planilha</span>
+          </button>
+
+          <button onclick="openNewCompanyModal()" class="inline-flex items-center gap-2 bg-cenati-600 hover:bg-cenati-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+            <i class="fa-solid fa-plus"></i>
+            <span>Nova Empresa</span>
+          </button>
+          
+          <button onclick="exportTasksPDF()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Relatório (PDF)</span>
+          </button>
+
+          <button onclick="logout()" title="Sair da Conta" class="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-colors">
+            <i class="fa-solid fa-power-off text-base"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 no-print">
+
+      <!-- METRIC CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Empresas</p>
+            <h3 id="stat-total-empresas" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+            <p class="text-xs text-slate-500 mt-1">Cadastradas no sistema</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-cenati-600 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-building"></i>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Taxa de Conformidade</p>
+            <h3 id="stat-conformidade" class="text-2xl font-bold text-emerald-600 mt-1">0%</h3>
+            <p class="text-xs text-slate-500 mt-1">Tarefas do mês concluídas</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tarefas Pendentes</p>
+            <h3 id="stat-pendentes" class="text-2xl font-bold text-amber-500 mt-1">0</h3>
+            <p class="text-xs text-slate-500 mt-1">Aguardando execução</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tempo Total Registrado</p>
+            <h3 id="stat-tempo-total" class="text-2xl font-bold text-cenati-800 mt-1">0h 0m</h3>
+            <p class="text-xs text-slate-500 mt-1">Cronometrado na equipe</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-stopwatch"></i>
+          </div>
+        </div>
       </div>
 
-      <form onsubmit="saveNewCompany(event)" class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Razão Social / Nome da Empresa *</label>
-          <input type="text" id="new-comp-name" required placeholder="Ex: ABC SERVICOS CONTABEIS LTDA" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Regime Tributário *</label>
-          <select id="new-comp-regime" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-            <option value="Simples Nacional">Simples Nacional</option>
-            <option value="Lucro Presumido">Lucro Presumido</option>
-            <option value="Lucro Real">Lucro Real</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Prioridade *</label>
-            <select id="new-comp-priority" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-              <option value="1">Alta (1)</option>
-              <option value="2" selected>Média (2)</option>
-              <option value="3">Baixa (3)</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Responsável *</label>
-            <select id="new-comp-resp" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-              <option value="OSVALDO">OSVALDO</option>
-              <option value="GABRIEL">GABRIEL</option>
-              <option value="MAYARA PIMENTA">MAYARA PIMENTA</option>
-            </select>
-          </div>
-        </div>
-
-        <p class="text-xs text-slate-400 bg-slate-50 p-3 rounded-lg border border-slate-200">
-          <i class="fa-solid fa-circle-info text-cenati-600 mr-1"></i>
-          Ao cadastrar a empresa, toda a grade de subtarefas dos departamentos (Folha, Fiscal, Contabilidade, Extratos) será gerada automaticamente.
-        </p>
-
-        <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
-          <button type="button" onclick="closeNewCompanyModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-300">
-            Cancelar
+      <!-- MAIN TABS -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="border-b border-slate-200 px-6 pt-4 flex space-x-6">
+          <button id="tab-btn-lista" onclick="switchTab('lista')" class="pb-3 text-sm font-semibold border-b-2 border-cenati-600 text-cenati-600 flex items-center gap-2">
+            <i class="fa-solid fa-list-check"></i>
+            <span>Gerenciamento de Empresas e Rotinas</span>
           </button>
-          <button type="submit" class="px-4 py-2 bg-cenati-600 text-white text-xs font-semibold rounded-lg hover:bg-cenati-700 shadow-sm">
-            Salvar Empresa
+          <button id="tab-btn-charts" onclick="switchTab('charts')" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Dashboard de Desempenho & Métricas</span>
           </button>
         </div>
-      </form>
+
+        <!-- TAB 1: LISTA -->
+        <div id="tab-content-lista" class="p-6 space-y-6">
+          
+          <!-- FILTROS -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Buscar Empresa</label>
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+                <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Nome da empresa..." class="w-full pl-9 pr-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Regime Tributário</label>
+              <select id="filter-regime" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+                <option value="">Todos os Regimes</option>
+                <option value="Simples Nacional">Simples Nacional (S.N.)</option>
+                <option value="Lucro Presumido">Lucro Presumido (L.P.)</option>
+                <option value="Lucro Real">Lucro Real (L.R.)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Responsável</label>
+              <select id="filter-responsavel" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+                <option value="">Todos os Responsáveis</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Status Geral</label>
+              <select id="filter-status" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+                <option value="">Todas</option>
+                <option value="100%">100% Concluídas</option>
+                <option value="pendente">Com Pendências</option>
+                <option value="andamento">Em Andamento</option>
+              </select>
+            </div>
+
+            <div class="flex items-end">
+              <button onclick="clearFilters()" class="w-full py-1.5 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1">
+                <i class="fa-solid fa-filter-circle-xmark"></i>
+                <span>Limpar Filtros</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- TABELA -->
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 uppercase text-xs">
+                <tr>
+                  <th class="py-3.5 px-4">Empresa</th>
+                  <th class="py-3.5 px-3">Regime</th>
+                  <th class="py-3.5 px-3">Prioridade</th>
+                  <th class="py-3.5 px-3">Responsável</th>
+                  <th class="py-3.5 px-3 text-center">Progresso</th>
+                  <th class="py-3.5 px-3 text-center">Ações / Detalhes</th>
+                </tr>
+              </thead>
+              <tbody id="companies-table-body" class="divide-y divide-slate-200 bg-white">
+              </tbody>
+            </table>
+          </div>
+
+          <!-- PAGINAÇÃO -->
+          <div class="flex items-center justify-between border-t border-slate-200 pt-4 text-xs text-slate-500">
+            <div>
+              Exibindo <span id="page-start" class="font-semibold text-slate-800">1</span> até <span id="page-end" class="font-semibold text-slate-800">25</span> de <span id="total-count" class="font-semibold text-slate-800">0</span> empresas
+            </div>
+            <div class="flex items-center space-x-2">
+              <button id="btn-prev-page" onclick="changePage(-1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
+              </button>
+              <span class="px-2 font-medium">Página <span id="current-page-num">1</span> de <span id="total-pages-num">1</span></span>
+              <button id="btn-next-page" onclick="changePage(1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                Próximo <i class="fa-solid fa-chevron-right ml-1"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: DASHBOARD -->
+        <div id="tab-content-charts" class="p-6 space-y-6 hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+              <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-cenati-600"></i>
+                Status Global de Conformidade
+              </h4>
+              <div class="h-64 relative flex items-center justify-center">
+                <canvas id="chartConformidade"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+              <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-user-check text-cenati-600"></i>
+                Conclusão de Tarefas por Responsável
+              </h4>
+              <div class="h-64">
+                <canvas id="chartResponsavel"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 md:col-span-2">
+              <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-cenati-600"></i>
+                Tempo Médio Executado por Departamento (Minutos)
+              </h4>
+              <div class="h-64">
+                <canvas id="chartTempoDepartamento"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- MODAL DE TAREFAS DE UMA EMPRESA -->
+    <div id="modal-company" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+        
+        <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+          <div>
+            <h3 id="modal-company-name" class="text-lg font-bold">Nome da Empresa</h3>
+            <p id="modal-company-info" class="text-xs text-slate-300">Regime: S.N | Responsável: Gabriel</p>
+          </div>
+          <button onclick="closeCompanyModal()" class="text-slate-400 hover:text-white text-xl">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto flex-1 space-y-6 custom-scrollbar">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+            <div class="flex flex-wrap gap-2">
+              <button onclick="filterDeptModal('ALL')" class="dept-btn active-dept px-3 py-1.5 text-xs font-semibold rounded-lg bg-cenati-600 text-white">Todos</button>
+              <button onclick="filterDeptModal('FOLHA')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Folha de Pagamento</button>
+              <button onclick="filterDeptModal('FISCAL')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Fiscal</button>
+              <button onclick="filterDeptModal('CONTABILIDADE')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Contabilidade</button>
+              <button onclick="filterDeptModal('SOLICITACOES')" class="dept-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">Solicitação de Extratos</button>
+            </div>
+
+            <button onclick="openNewTaskModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 shadow-sm">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>Nova Tarefa</span>
+            </button>
+          </div>
+
+          <div id="modal-tasks-list" class="space-y-3">
+          </div>
+        </div>
+
+        <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs text-slate-500">
+          <div>
+            <span>Tempo total investido nesta empresa: </span>
+            <strong id="modal-total-time" class="text-slate-800 text-sm">0m 0s</strong>
+          </div>
+          <button onclick="closeCompanyModal()" class="px-4 py-2 bg-slate-800 text-white text-xs font-medium rounded-lg hover:bg-slate-700">
+            Fechar
+          </button>
+        </div>
+
+      </div>
     </div>
-  </div>
 
-  <!-- MODAL PARA ADICIONAR NOVA TAREFA EM UMA EMPRESA -->
-  <div id="modal-add-task" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
-        <h3 class="text-base font-bold flex items-center gap-2">
-          <i class="fa-solid fa-list-check"></i>
-          Criar Nova Tarefa
-        </h3>
-        <button onclick="closeNewTaskModal()" class="text-slate-400 hover:text-white">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+    <!-- MODAL PARA CADASTRAR NOVA EMPRESA -->
+    <div id="modal-add-company" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div class="bg-cenati-900 text-white px-6 py-4 flex items-center justify-between">
+          <h3 class="text-base font-bold flex items-center gap-2">
+            <i class="fa-solid fa-building-circle-check"></i>
+            Cadastrar Nova Empresa
+          </h3>
+          <button onclick="closeNewCompanyModal()" class="text-slate-400 hover:text-white">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <form onsubmit="saveNewCompany(event)" class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Razão Social / Nome da Empresa *</label>
+            <input type="text" id="new-comp-name" required placeholder="Ex: ABC SERVICOS CONTABEIS LTDA" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Regime Tributário *</label>
+            <select id="new-comp-regime" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <option value="Simples Nacional">Simples Nacional</option>
+              <option value="Lucro Presumido">Lucro Presumido</option>
+              <option value="Lucro Real">Lucro Real</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Prioridade *</label>
+              <select id="new-comp-priority" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+                <option value="1">Alta (1)</option>
+                <option value="2" selected>Média (2)</option>
+                <option value="3">Baixa (3)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Responsável *</label>
+              <select id="new-comp-resp" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+                <option value="OSVALDO">OSVALDO</option>
+                <option value="GABRIEL">GABRIEL</option>
+                <option value="MAYARA PIMENTA">MAYARA PIMENTA</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400 bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <i class="fa-solid fa-circle-info text-cenati-600 mr-1"></i>
+            Ao cadastrar a empresa, toda a grade de subtarefas dos departamentos será gerada automaticamente.
+          </p>
+
+          <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
+            <button type="button" onclick="closeNewCompanyModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-300">
+              Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-cenati-600 text-white text-xs font-semibold rounded-lg hover:bg-cenati-700 shadow-sm">
+              Salvar Empresa
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
 
-      <form onsubmit="saveNewTask(event)" class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Departamento *</label>
-          <select id="new-task-dept" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-            <option value="FOLHA">Folha de Pagamento</option>
-            <option value="FISCAL">Fiscal</option>
-            <option value="CONTABILIDADE">Contabilidade</option>
-            <option value="SOLICITACOES">Solicitações de Documentos</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Título da Tarefa *</label>
-          <input type="text" id="new-task-title" required placeholder="Ex: Conciliação de Cartão de Crédito" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Data de Vencimento *</label>
-          <input type="date" id="new-task-duedate" required value="2026-10-31" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
-          <button type="button" onclick="closeNewTaskModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-300">
-            Cancelar
-          </button>
-          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 shadow-sm">
-            Adicionar Tarefa
+    <!-- MODAL PARA ADICIONAR NOVA TAREFA EM UMA EMPRESA -->
+    <div id="modal-add-task" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+          <h3 class="text-base font-bold flex items-center gap-2">
+            <i class="fa-solid fa-list-check"></i>
+            Criar Nova Tarefa
+          </h3>
+          <button onclick="closeNewTaskModal()" class="text-slate-400 hover:text-white">
+            <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-      </form>
+
+        <form onsubmit="saveNewTask(event)" class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Departamento *</label>
+            <select id="new-task-dept" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <option value="FOLHA">Folha de Pagamento</option>
+              <option value="FISCAL">Fiscal</option>
+              <option value="CONTABILIDADE">Contabilidade</option>
+              <option value="SOLICITACOES">Solicitações de Documentos</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Título da Tarefa *</label>
+            <input type="text" id="new-task-title" required placeholder="Ex: Conciliação de Cartão de Crédito" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Data de Vencimento *</label>
+            <input type="date" id="new-task-duedate" required value="2026-10-31" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
+            <button type="button" onclick="closeNewTaskModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-300">
+              Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 shadow-sm">
+              Adicionar Tarefa
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -484,6 +561,8 @@
     };
 
     let companies = [];
+    let usersList = [];
+    let currentUser = null;
     let currentPage = 1;
     const pageSize = 25;
     let selectedCompanyId = null;
@@ -491,14 +570,110 @@
     let timerIntervals = {};
 
     document.addEventListener('DOMContentLoaded', () => {
+      loadUsers();
+      loadData();
+
+      const activeUser = sessionStorage.getItem('cenati_current_user');
+      if (activeUser) {
+        currentUser = activeUser;
+        unlockApp();
+      }
+    });
+
+    function loadUsers() {
+      const stored = localStorage.getItem('cenati_users_db');
+      if (stored) {
+        try {
+          usersList = JSON.parse(stored);
+        } catch(e) {
+          usersList = [];
+        }
+      }
+      if (usersList.length === 0) {
+        // Usuário padrão inicial
+        usersList = [
+          { name: 'Osvaldo Silva', username: 'osvaldo', pass: 'cenati2026' },
+          { name: 'Gabriel', username: 'gabriel', pass: 'cenati2026' },
+          { name: 'Mayara Pimenta', username: 'mayara', pass: 'cenati2026' }
+        ];
+        localStorage.setItem('cenati_users_db', JSON.stringify(usersList));
+      }
+    }
+
+    function saveUsers() {
+      localStorage.setItem('cenati_users_db', JSON.stringify(usersList));
+    }
+
+    function showRegisterView() {
+      document.getElementById('form-login').classList.add('hidden');
+      document.getElementById('form-register').classList.remove('hidden');
+      document.getElementById('login-error').classList.add('hidden');
+    }
+
+    function showLoginView() {
+      document.getElementById('form-register').classList.add('hidden');
+      document.getElementById('form-login').classList.remove('hidden');
+      document.getElementById('reg-error').classList.add('hidden');
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('login-user').value.trim().toLowerCase();
+      const p = document.getElementById('login-pass').value;
+
+      const found = usersList.find(x => x.username.toLowerCase() === u && x.pass === p);
+      if (found) {
+        currentUser = found.name;
+        sessionStorage.setItem('cenati_current_user', currentUser);
+        unlockApp();
+      } else {
+        document.getElementById('login-error').classList.remove('hidden');
+      }
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value.trim();
+      const username = document.getElementById('reg-user').value.trim().toLowerCase();
+      const pass = document.getElementById('reg-pass').value;
+
+      const exists = usersList.some(x => x.username.toLowerCase() === username);
+      if (exists) {
+        document.getElementById('reg-error').classList.remove('hidden');
+        return;
+      }
+
+      usersList.push({ name, username, pass });
+      saveUsers();
+
+      currentUser = name;
+      sessionStorage.setItem('cenati_current_user', currentUser);
+      unlockApp();
+      alert(`Conta criada com sucesso! Bem-vindo(a), ${name}.`);
+    }
+
+    function unlockApp() {
+      document.getElementById('login-overlay').classList.add('hidden');
+      document.getElementById('app-container').classList.remove('hidden');
+      document.getElementById('current-user-badge').textContent = currentUser;
       loadData();
       populateResponsavelFilter();
       applyFilters();
       initCharts();
-    });
+    }
+
+    function logout() {
+      sessionStorage.removeItem('cenati_current_user');
+      currentUser = null;
+      document.getElementById('app-container').classList.add('hidden');
+      document.getElementById('login-overlay').classList.remove('hidden');
+      showLoginView();
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+    }
 
     function loadData() {
-      const stored = localStorage.getItem('cenati_companies_db_v2');
+      const stored = localStorage.getItem('cenati_companies_db_v4');
       if (stored) {
         try {
           companies = JSON.parse(stored);
@@ -511,12 +686,12 @@
     }
 
     function saveData() {
-      localStorage.setItem('cenati_companies_db_v2', JSON.stringify(companies));
+      localStorage.setItem('cenati_companies_db_v4', JSON.stringify(companies));
     }
 
     function resetDataToDefault() {
       if(confirm("Deseja zerar todas as tarefas e limpar a base de empresas?")) {
-        localStorage.removeItem('cenati_companies_db_v2');
+        localStorage.removeItem('cenati_companies_db_v4');
         companies = [];
         saveData();
         populateResponsavelFilter();
@@ -526,7 +701,6 @@
       }
     }
 
-    // FUNÇÃO PARA IMPORTAR PLANILHAS EXCEL (XLSX, XLS, CSV)
     function handleFileImport(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -539,7 +713,6 @@
           const firstSheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[firstSheetName];
           
-          // Converter a planilha em matriz de linhas
           const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
           
           if (!rows || rows.length === 0) {
@@ -550,7 +723,6 @@
           let addedCount = 0;
           let startRow = 0;
 
-          // Verificar se linha 0 ou 1 é o cabeçalho real
           for (let i = 0; i < Math.min(rows.length, 5); i++) {
             const firstCell = String(rows[i][0] || '').toLowerCase();
             if (firstCell.includes('empresa') || firstCell.includes('razão') || firstCell.includes('razao')) {
@@ -560,7 +732,7 @@
           }
 
           if (startRow === 0 && rows.length > 2 && String(rows[0][0]).includes('CADASTRO')) {
-            startRow = 2; // Estrutura do empresas_tarefas.xlsx
+            startRow = 2;
           }
 
           rows.slice(startRow).forEach((row, idx) => {
@@ -575,9 +747,8 @@
             let priority = parseInt(row[2]) || 2;
             if (![1, 2, 3].includes(priority)) priority = 2;
 
-            const resp = String(row[3] || 'OSVALDO').trim().toUpperCase();
+            const resp = String(row[3] || currentUser).trim().toUpperCase();
 
-            // Gerar lista padrão de tarefas para a nova empresa
             let tasksList = [];
             let tCounter = 1;
             Object.keys(DEPARTMENTS).forEach(deptKey => {
@@ -589,12 +760,12 @@
                   status: 'pending',
                   dueDate: '2026-10-31',
                   startTime: null,
-                  elapsedSeconds: 0
+                  elapsedSeconds: 0,
+                  lastModifiedBy: null
                 });
               });
             });
 
-            // Adicionar ou atualizar empresa
             const existingIdx = companies.findIndex(c => c.name.toUpperCase() === compName.toUpperCase());
             if (existingIdx >= 0) {
               companies[existingIdx].regime = regime;
@@ -616,11 +787,11 @@
           saveData();
           populateResponsavelFilter();
           applyFilters();
-          alert(`Importação concluída com sucesso!\n\nForam processadas e adicionadas/atualizadas empresas na sua base.`);
-          e.target.value = ''; // Limpar input
+          alert(`Importação concluída com sucesso!\n\nEmpresas processadas.`);
+          e.target.value = '';
         } catch (err) {
           console.error(err);
-          alert("Erro ao ler o arquivo Excel. Verifique se o formato é válido.");
+          alert("Erro ao ler o arquivo Excel.");
         }
       };
       reader.readAsArrayBuffer(file);
@@ -702,7 +873,7 @@
         tbody.innerHTML = `
           <tr>
             <td colspan="6" class="text-center py-8 text-slate-400">
-              Nenhuma empresa cadastrada ou encontrada. Clique em <b>"Importar Planilha"</b> ou <b>"Nova Empresa"</b> para adicionar.
+              Nenhuma empresa cadastrada. Clique em <b>"Importar Planilha"</b> ou <b>"Nova Empresa"</b> para adicionar.
             </td>
           </tr>
         `;
@@ -841,6 +1012,7 @@
                 <span id="timer-display-${task.id}" class="font-mono ${isRunning ? 'text-blue-600 font-bold' : ''}">
                   Tempo: ${formatSeconds(task.elapsedSeconds)}
                 </span>
+                ${task.lastModifiedBy ? `<span>• Alterado por: <strong class="text-slate-700">${task.lastModifiedBy}</strong></span>` : ''}
               </div>
             </div>
           </div>
@@ -861,7 +1033,7 @@
               </button>
             ` : `
               <span class="px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-lg flex items-center gap-1">
-                <i class="fa-solid fa-circle-check"></i> Concluído
+                <i class="fa-solid fa-circle-check"></i> ${task.lastModifiedBy ? task.lastModifiedBy : 'Concluído'}
               </span>
             `}
           </div>
@@ -901,7 +1073,8 @@
             status: 'pending',
             dueDate: '2026-10-31',
             startTime: null,
-            elapsedSeconds: 0
+            elapsedSeconds: 0,
+            lastModifiedBy: currentUser
           });
         });
       });
@@ -951,7 +1124,8 @@
         status: 'pending',
         dueDate: dueDate || '2026-10-31',
         startTime: null,
-        elapsedSeconds: 0
+        elapsedSeconds: 0,
+        lastModifiedBy: currentUser
       });
 
       saveData();
@@ -968,6 +1142,7 @@
 
       task.status = 'running';
       task.startTime = Date.now();
+      task.lastModifiedBy = currentUser;
       saveData();
 
       if (timerIntervals[taskId]) clearInterval(timerIntervals[taskId]);
@@ -990,6 +1165,7 @@
       if (!task) return;
 
       task.status = 'pending';
+      task.lastModifiedBy = currentUser;
       if (timerIntervals[taskId]) {
         clearInterval(timerIntervals[taskId]);
         delete timerIntervals[taskId];
@@ -1014,6 +1190,7 @@
       } else {
         task.status = 'completed';
       }
+      task.lastModifiedBy = currentUser;
 
       saveData();
       renderModalTasks();
@@ -1194,7 +1371,8 @@
               deptTitle: deptTitle,
               taskTitle: t.title,
               status: t.status === 'completed' ? 'Concluído' : 'Em Andamento',
-              timeSpent: formatSeconds(t.elapsedSeconds)
+              timeSpent: formatSeconds(t.elapsedSeconds),
+              modifiedBy: t.lastModifiedBy || 'Não registrado'
             });
           }
         });
@@ -1202,7 +1380,7 @@
 
       const rate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
       const printContainer = document.getElementById('print-section');
-      const logoImgSrc = document.getElementById('cenati-logo-img')?.src || 'CAPA CENATI.png';
+      const logoImgSrc = document.getElementById('cenati-logo-img')?.src || './Files/logo-cenati.jpeg';
 
       printContainer.innerHTML = `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; color: #1e293b;">
@@ -1212,12 +1390,12 @@
               <img src="${logoImgSrc}" alt="Cenati Logo" style="height: 50px; width: auto; object-fit: contain;">
               <div>
                 <h1 style="color: #1e3a8a; font-size: 18px; font-weight: bold; margin: 0;">CENATI CONTABILIDADE</h1>
-                <p style="color: #64748b; font-size: 11px; margin: 2px 0 0 0;">Relatório de Acompanhamento de Tarefas e Movimentações</p>
+                <p style="color: #64748b; font-size: 11px; margin: 2px 0 0 0;">Relatório de Auditoria de Acompanhamento de Tarefas</p>
               </div>
             </div>
             <div style="text-align: right; font-size: 11px; color: #475569;">
               <p style="margin: 0;">Emissão: <strong>${todayStr} às ${timeStr}</strong></p>
-              <p style="margin: 2px 0 0 0;">Tarefas Movimentadas: <strong>${activeMovements.length}</strong></p>
+              <p style="margin: 2px 0 0 0;">Emitido por: <strong>${currentUser}</strong></p>
             </div>
           </div>
 
@@ -1239,28 +1417,28 @@
             </table>
           </div>
 
-          <h3 style="color: #1e3a8a; font-size: 12px; font-weight: bold; margin: 0 0 8px 0; text-transform: uppercase;">Detalhamento das Tarefas Movimentadas</h3>
+          <h3 style="color: #1e3a8a; font-size: 12px; font-weight: bold; margin: 0 0 8px 0; text-transform: uppercase;">Detalhamento e Auditoria de Movimentações</h3>
           
           ${activeMovements.length === 0 ? `
             <div style="padding: 20px; text-align: center; border: 1px dashed #cbd5e1; border-radius: 6px; color: #64748b; font-size: 11px;">
-              Nenhuma tarefa foi iniciada ou concluída até o momento.
+              Nenhuma tarefa foi movimentada até o momento.
             </div>
           ` : `
             <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
               <thead>
                 <tr style="background-color: #f1f5f9; border-bottom: 1.5px solid #94a3b8;">
                   <th style="padding: 6px; border: 1px solid #e2e8f0;">Empresa</th>
-                  <th style="padding: 6px; border: 1px solid #e2e8f0;">Responsável</th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0;">Responsável Alt.</th>
                   <th style="padding: 6px; border: 1px solid #e2e8f0;">Departamento / Tarefa</th>
                   <th style="padding: 6px; border: 1px solid #e2e8f0;">Status</th>
-                  <th style="padding: 6px; border: 1px solid #e2e8f0;">Tempo Dedicado</th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0;">Tempo</th>
                 </tr>
               </thead>
               <tbody>
                 ${activeMovements.map(m => `
                   <tr style="border-bottom: 1px solid #e2e8f0;">
                     <td style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold;">${m.companyName}</td>
-                    <td style="padding: 6px; border: 1px solid #e2e8f0;">${m.resp}</td>
+                    <td style="padding: 6px; border: 1px solid #e2e8f0; color: #1e40af; font-weight: bold;">${m.modifiedBy}</td>
                     <td style="padding: 6px; border: 1px solid #e2e8f0;"><strong>${m.deptTitle}</strong><br><span style="color: #475569;">${m.taskTitle}</span></td>
                     <td style="padding: 6px; border: 1px solid #e2e8f0; font-weight: bold; color: ${m.status === 'Concluído' ? '#10b981' : '#2563eb'};">${m.status}</td>
                     <td style="padding: 6px; border: 1px solid #e2e8f0; font-family: monospace;">${m.timeSpent}</td>
