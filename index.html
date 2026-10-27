@@ -314,15 +314,16 @@
   <div id="print-section" class="hidden p-8 bg-white text-slate-800"></div>
 
   <script>
+    // CREDENCIAIS OFICIAIS DO SUPABASE CONECTADAS
     const SUPABASE_URL = 'https://hasrxwxlyyumnkputmcs.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhhc3J4d3hseXl1bW5rcHV0bWNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MDM2MTUsImV4cCI6MjA4NjE3OTYxNX0.dummysignaturetoken';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhhc3J4d3hseXl1bW5rcHV0bWNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwOTg2MjEsImV4cCI6MjEwODY3NDYyMX0.IJG7DRSqfFHqalU0Pu1s-nELlSgBOJv7COkMbFB3SaU';
     
     let supabaseClient = null;
     try {
       if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
-    } catch(e) { console.warn("Modo offline."); }
+    } catch(e) { console.warn("Modo offline ativado."); }
 
     const DEPARTMENTS = {
       FOLHA: { title: 'Folha de Pagamento', tasks: ['Contabilização da Folha', 'Contabilização Encargos', 'Erros de Rubricas', 'Pagamentos Folha/Encargos'] },
@@ -371,7 +372,7 @@
         }
       } catch(err) { console.warn("Supabase indisponível."); }
 
-      // 2. Fallback LocalStorage (garante funcionamento imediato no GitHub Pages)
+      // 2. Fallback LocalStorage (garante funcionamento imediato)
       if (!loggedName) {
         const localUsers = JSON.parse(localStorage.getItem('cenati_local_users') || '[]');
         const foundLocal = localUsers.find(x => x.username.toLowerCase() === u && x.pass === p);
@@ -398,7 +399,7 @@
       const username = document.getElementById('reg-user').value.trim().toLowerCase();
       const pass = document.getElementById('reg-pass').value;
 
-      // Salva no LocalStorage para garantir funcionamento no GitHub Pages
+      // Salva no LocalStorage
       const localUsers = JSON.parse(localStorage.getItem('cenati_local_users') || '[]');
       if (localUsers.some(x => x.username.toLowerCase() === username)) {
         document.getElementById('reg-error').classList.remove('hidden');
@@ -407,7 +408,7 @@
       localUsers.push({ name, username, pass });
       localStorage.setItem('cenati_local_users', JSON.stringify(localUsers));
 
-      // Tenta salvar também no Supabase (se configurado)
+      // Tenta salvar também no Supabase
       try {
         if (supabaseClient) {
           await supabaseClient.from('users').insert([{ name, username, pass }]);
