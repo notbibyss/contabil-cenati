@@ -144,10 +144,10 @@
 
         <div class="flex items-center space-x-3">
           <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleFileImport(event)" class="hidden">
-          <button onclick="document.getElementById('excel-file-input').click()" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+          <button id="btn-import" onclick="document.getElementById('excel-file-input').click()" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
             <i class="fa-solid fa-file-import"></i><span>Importar Planilha</span>
           </button>
-          <button onclick="openNewCompanyModal()" class="inline-flex items-center gap-2 bg-cenati-600 hover:bg-cenati-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+          <button id="btn-new-company" onclick="openNewCompanyModal()" class="inline-flex items-center gap-2 bg-cenati-600 hover:bg-cenati-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
             <i class="fa-solid fa-plus"></i><span>Nova Empresa</span>
           </button>
           <button onclick="exportTasksPDF()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
@@ -162,7 +162,7 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 no-print">
       <!-- Cards de Métricas -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div id="metrics-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Empresas</p>
@@ -197,8 +197,8 @@
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Buscar Empresa</label>
-            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Nome..." class="w-full px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg">
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Buscar Empresa / CNPJ</label>
+            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Nome ou CNPJ..." class="w-full px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">Regime Tributário</label>
@@ -232,8 +232,8 @@
           <table class="w-full text-left text-sm">
             <thead class="bg-slate-100 text-slate-700 font-semibold border-b uppercase text-xs">
               <tr>
-                <th class="py-3.5 px-4">Empresa</th>
-                <th class="py-3.5 px-3">Regime</th>
+                <th class="py-3.5 px-4">Empresa / CNPJ</th>
+                <th class="py-3.5 px-3">Regime / Contato</th>
                 <th class="py-3.5 px-3">Prioridade</th>
                 <th class="py-3.5 px-3">Responsável</th>
                 <th class="py-3.5 px-3 text-center">Progresso</th>
@@ -267,7 +267,7 @@
 
   <!-- MODAL PARA CADASTRAR NOVA EMPRESA -->
   <div id="modal-add-company" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
       <div class="bg-cenati-900 text-white px-6 py-4 flex items-center justify-between">
         <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-building-circle-check"></i> Cadastrar Nova Empresa</h3>
         <button onclick="closeNewCompanyModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
@@ -278,14 +278,32 @@
           <input type="text" id="new-comp-name" required placeholder="Ex: ABC LTDA" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Regime Tributário *</label>
-          <select id="new-comp-regime" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
-            <option value="Simples Nacional">Simples Nacional</option>
-            <option value="Lucro Presumido">Lucro Presumido</option>
-            <option value="Lucro Real">Lucro Real</option>
-          </select>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">CNPJ *</label>
+          <input type="text" id="new-comp-cnpj" required placeholder="00.000.000/0001-00" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
         </div>
         <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Responsável pela Empresa</label>
+            <input type="text" id="new-comp-resp-empresa" placeholder="Ex: João da Silva" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Contato Tel.</label>
+            <input type="text" id="new-comp-tel" placeholder="(14) 99999-9999" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">E-mail</label>
+          <input type="email" id="new-comp-email" placeholder="email@empresa.com" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Regime *</label>
+            <select id="new-comp-regime" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
+              <option value="Simples Nacional">Simples Nacional</option>
+              <option value="Lucro Presumido">Lucro Presumido</option>
+              <option value="Lucro Real">Lucro Real</option>
+            </select>
+          </div>
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Prioridade *</label>
             <select id="new-comp-priority" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
@@ -300,6 +318,7 @@
               <option value="OSVALDO">OSVALDO</option>
               <option value="GABRIEL">GABRIEL</option>
               <option value="MAYARA PIMENTA">MAYARA PIMENTA</option>
+              <option value="THAINÁ">THAINÁ</option>
             </select>
           </div>
         </div>
@@ -314,7 +333,6 @@
   <div id="print-section" class="hidden p-8 bg-white text-slate-800"></div>
 
   <script>
-    // CREDENCIAIS OFICIAIS DO SUPABASE CONECTADAS
     const SUPABASE_URL = 'https://hasrxwxlyyumnkputmcs.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhhc3J4d3hseXl1bW5rcHV0bWNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwOTg2MjEsImV4cCI6MjEwODY3NDYyMX0.IJG7DRSqfFHqalU0Pu1s-nELlSgBOJv7COkMbFB3SaU';
     
@@ -329,7 +347,7 @@
       FOLHA: { title: 'Folha de Pagamento', tasks: ['Contabilização da Folha', 'Contabilização Encargos', 'Erros de Rubricas', 'Pagamentos Folha/Encargos'] },
       FISCAL: { title: 'Fiscal', tasks: ['Conferência de Entradas', 'Conferência de Saídas', 'Conferência Faturamento', 'Parâmetros de Acumuladores', 'Contabilização Entradas/Saídas', 'Conferência/Pagamentos de Impostos'] },
       CONTABILIDADE: { title: 'Contabilidade', tasks: ['Capital Social', 'Honorários Contábeis', 'Ativo Imobilizado', 'Estouro de Caixa (diário)', 'Conciliação de Parcelamentos', 'Conciliação de Adiantamentos à Fornecedores', 'Conciliação de Adiantamentos de Clientes', 'Conciliação Fornecedores', 'Conciliação Clientes', 'Conciliação Bancária', 'Aplicação Financeira', 'Depreciações', 'CMV/CPV', 'Emissão de Balancete'] },
-      SOLICITACOES: { title: 'Solicitações de Documentos', tasks: ['SOLICITAÇÃO DE EXTRATOS BANCÁRIOS'] }
+      SOLICITACOES: { title: 'Solicitações de Documentos', tasks: ['SOLICITAÇÃO DE EXTRATOS BANCÁRIOS', 'SOLICITAÇÃO DE APLICAÇÕES FINANCEIRAS', 'SALVAMENTO NA PASTA DO CLIENTE'] }
     };
 
     let companies = [];
@@ -372,17 +390,16 @@
         }
       } catch(err) { console.warn("Supabase indisponível."); }
 
-      // 2. Fallback LocalStorage (garante funcionamento imediato)
+      // 2. Fallback LocalStorage
       if (!loggedName) {
         const localUsers = JSON.parse(localStorage.getItem('cenati_local_users') || '[]');
         const foundLocal = localUsers.find(x => x.username.toLowerCase() === u && x.pass === p);
         if (foundLocal) loggedName = foundLocal.name;
       }
 
-      // 3. Usuário padrão de segurança
-      if (!loggedName && u === 'osvaldo' && p === 'cenati2026') {
-        loggedName = 'Osvaldo Silva';
-      }
+      // 3. Usuários padrão de segurança (Incluindo Thainá)
+      if (!loggedName && u === 'osvaldo' && p === 'cenati2026') loggedName = 'Osvaldo Silva';
+      if (!loggedName && u === 'thaina' && p === '123456') loggedName = 'Thainá';
 
       if (loggedName) {
         currentUser = loggedName;
@@ -399,7 +416,6 @@
       const username = document.getElementById('reg-user').value.trim().toLowerCase();
       const pass = document.getElementById('reg-pass').value;
 
-      // Salva no LocalStorage
       const localUsers = JSON.parse(localStorage.getItem('cenati_local_users') || '[]');
       if (localUsers.some(x => x.username.toLowerCase() === username)) {
         document.getElementById('reg-error').classList.remove('hidden');
@@ -408,7 +424,6 @@
       localUsers.push({ name, username, pass });
       localStorage.setItem('cenati_local_users', JSON.stringify(localUsers));
 
-      // Tenta salvar também no Supabase
       try {
         if (supabaseClient) {
           await supabaseClient.from('users').insert([{ name, username, pass }]);
@@ -425,6 +440,13 @@
       document.getElementById('login-overlay').classList.add('hidden');
       document.getElementById('app-container').classList.remove('hidden');
       document.getElementById('current-user-badge').textContent = currentUser;
+      
+      // Restrição de acesso para Thainá (Apenas empresas e Solicitações de Documentos)
+      if (currentUser.toLowerCase() === 'thainá' || currentUser.toLowerCase() === 'thaina') {
+        document.getElementById('btn-import').style.display = 'none';
+        document.getElementById('metrics-cards').style.display = 'none';
+      }
+
       await loadDataFromCloud();
       populateResponsavelFilter();
       applyFilters();
@@ -443,6 +465,10 @@
             companies = data.map(item => ({
               id: item.id,
               name: item.name,
+              cnpj: item.cnpj || '',
+              respEmpresa: item.resp_empresa || '',
+              tel: item.tel || '',
+              email: item.email || '',
               regime: item.regime,
               priority: item.priority,
               resp: item.resp,
@@ -464,6 +490,10 @@
             await supabaseClient.from('companies').upsert({
               id: comp.id,
               name: comp.name,
+              cnpj: comp.cnpj,
+              resp_empresa: comp.respEmpresa,
+              tel: comp.tel,
+              email: comp.email,
               regime: comp.regime,
               priority: comp.priority,
               resp: comp.resp,
@@ -483,7 +513,7 @@
       const status = document.getElementById('filter-status').value;
 
       filteredCompanies = companies.filter(comp => {
-        const matchesSearch = comp.name.toLowerCase().includes(search);
+        const matchesSearch = comp.name.toLowerCase().includes(search) || (comp.cnpj && comp.cnpj.toLowerCase().includes(search));
         const matchesRegime = !regime || comp.regime.toLowerCase().includes(regime.toLowerCase());
         const matchesResp = !resp || comp.resp === resp;
 
@@ -523,8 +553,14 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50";
         tr.innerHTML = `
-          <td class="py-3 px-4 font-semibold">${comp.name}</td>
-          <td class="py-3 px-3"><span class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-lg">${comp.regime}</span></td>
+          <td class="py-3 px-4">
+            <div class="font-semibold text-slate-800">${comp.name}</div>
+            <div class="text-xs text-slate-500 font-mono">CNPJ: ${comp.cnpj || 'Não informado'}</div>
+          </td>
+          <td class="py-3 px-3">
+            <span class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-lg inline-block mb-1">${comp.regime}</span>
+            <div class="text-xs text-slate-500">${comp.tel || ''} | ${comp.email || ''}</div>
+          </td>
           <td class="py-3 px-3">${comp.priority}</td>
           <td class="py-3 px-3">${comp.resp}</td>
           <td class="py-3 px-3 text-center"><b>${percent}%</b></td>
@@ -540,11 +576,17 @@
       const comp = companies.find(c => c.id === id);
       if (!comp) return;
       document.getElementById('modal-company-name').textContent = comp.name;
-      document.getElementById('modal-company-info').textContent = `Responsável: ${comp.resp}`;
+      document.getElementById('modal-company-info').textContent = `CNPJ: ${comp.cnpj || 'N/A'} | Resp: ${comp.respEmpresa || 'N/A'} | Tel: ${comp.tel || 'N/A'}`;
       
       const container = document.getElementById('modal-tasks-list');
       container.innerHTML = '';
+      
+      // Se for a Thainá, exibe apenas o departamento de SOLICITAÇÕES DE DOCUMENTOS
+      const isThaina = currentUser.toLowerCase() === 'thainá' || currentUser.toLowerCase() === 'thaina';
+
       comp.tasks.forEach(t => {
+        if (isThaina && t.department !== 'SOLICITACOES') return;
+
         container.innerHTML += `<div class="p-3 border rounded-lg flex justify-between items-center">
           <div><p class="text-xs text-blue-600 font-bold">${t.department}</p><h5 class="text-sm font-semibold">${t.title}</h5>
           ${t.lastModifiedBy ? `<span class="text-[10px] text-slate-400">Alterado por: ${t.lastModifiedBy}</span>` : ''}</div>
@@ -576,9 +618,19 @@
     async function saveNewCompany(e) {
       e.preventDefault();
       const name = document.getElementById('new-comp-name').value.trim().toUpperCase();
+      const cnpj = document.getElementById('new-comp-cnpj').value.trim();
+      const respEmpresa = document.getElementById('new-comp-resp-empresa').value.trim();
+      const tel = document.getElementById('new-comp-tel').value.trim();
+      const email = document.getElementById('new-comp-email').value.trim();
       const regime = document.getElementById('new-comp-regime').value;
       const priority = parseInt(document.getElementById('new-comp-priority').value);
       const resp = document.getElementById('new-comp-resp').value;
+
+      // TRAVA DE SEGURANÇA POR CNPJ
+      if (cnpj && companies.some(c => c.cnpj && c.cnpj.replace(/\D/g, '') === cnpj.replace(/\D/g, ''))) {
+        alert(`Erro: Já existe uma empresa cadastrada com o CNPJ ${cnpj}!`);
+        return;
+      }
 
       let tasksList = [];
       let tCounter = 1;
@@ -588,12 +640,13 @@
         });
       });
 
-      const newComp = { id: Date.now(), name, regime, priority, resp, tasks: tasksList };
+      const newComp = { id: Date.now(), name, cnpj, respEmpresa, tel, email, regime, priority, resp, tasks: tasksList };
       companies.unshift(newComp);
       await saveCloudData();
       applyFilters();
       closeNewCompanyModal();
       document.getElementById('new-comp-name').value = '';
+      document.getElementById('new-comp-cnpj').value = '';
       alert(`Empresa "${name}" cadastrada com sucesso!`);
     }
 
@@ -608,9 +661,25 @@
           const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
           
           let added = 0;
-          rows.slice(2).forEach((row, idx) => {
+          let duplicated = 0;
+
+          rows.slice(1).forEach((row, idx) => {
             const compName = String(row[0] || '').trim();
+            const cnpj = String(row[1] || '').trim();
+            const respEmpresa = String(row[2] || '').trim();
+            const tel = String(row[3] || '').trim();
+            const email = String(row[4] || '').trim();
+            const regime = String(row[5] || 'Simples Nacional').trim();
+            const priority = parseInt(row[6] || 2);
+            const resp = String(row[7] || 'OSVALDO').trim();
+
             if (!compName || compName.toLowerCase() === 'empresa') return;
+
+            // Trava por CNPJ na importação
+            if (cnpj && companies.some(c => c.cnpj && c.cnpj.replace(/\D/g, '') === cnpj.replace(/\D/g, ''))) {
+              duplicated++;
+              return;
+            }
 
             let tasksList = [];
             let tCounter = 1;
@@ -620,13 +689,13 @@
               });
             });
 
-            companies.push({ id: Date.now() + idx, name: compName.toUpperCase(), regime: 'Simples Nacional', priority: 2, resp: currentUser, tasks: tasksList });
+            companies.push({ id: Date.now() + idx, name: compName.toUpperCase(), cnpj, respEmpresa, tel, email, regime, priority, resp, tasks: tasksList });
             added++;
           });
 
           await saveCloudData();
           applyFilters();
-          alert(`Importação concluída! ${added} empresas adicionadas.`);
+          alert(`Importação concluída!\n- Adicionadas: ${added} empresas.\n- Ignoradas (CNPJ duplicado): ${duplicated} empresas.`);
         } catch(err) { alert("Erro ao ler planilha."); }
       };
       reader.readAsArrayBuffer(file);
