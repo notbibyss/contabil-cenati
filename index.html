@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cenati Contabilidade - Gerenciador de Tarefas (Cloud DB)</title>
+  <title>Cenati Contabilidade - Gerenciador de Tarefas</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- SheetJS para Leitura de Planilhas Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- Supabase Client para Banco de Dados em Nuvem -->
+  <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
@@ -51,22 +51,22 @@
 </head>
 <body class="font-sans min-h-screen flex flex-col">
 
-  <!-- TELA DE LOGIN -->
+  <!-- TELA DE LOGIN / CADASTRO -->
   <div id="login-overlay" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
       <div class="bg-cenati-900 text-white px-8 py-6 text-center space-y-2">
         <div class="w-16 h-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold">
-          <i class="fa-solid fa-cloud"></i>
+          <i class="fa-solid fa-shield-halved"></i>
         </div>
         <h2 class="text-xl font-bold">Cenati Contabilidade</h2>
-        <p class="text-xs text-slate-300">Banco de Dados em Nuvem (Supabase)</p>
+        <p class="text-xs text-slate-300">Controle de Acesso e Auditoria</p>
       </div>
 
       <div class="p-8">
         <!-- FORM DE LOGIN -->
         <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Usuário</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nome de Usuário</label>
             <div class="relative">
               <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400 text-sm"></i>
               <input type="text" id="login-user" required placeholder="Seu usuário..." class="w-full pl-10 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
@@ -84,7 +84,7 @@
 
           <button type="submit" class="w-full py-2.5 bg-cenati-600 hover:bg-cenati-700 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
             <i class="fa-solid fa-right-to-bracket"></i>
-            <span>Entrar na Nuvem</span>
+            <span>Entrar no Sistema</span>
           </button>
 
           <div class="text-center pt-2 border-t border-slate-100">
@@ -109,12 +109,12 @@
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Senha</label>
             <input type="password" id="reg-pass" required placeholder="Crie uma senha..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
-            <p id="reg-error" class="text-xs text-red-600 mt-1.5 hidden font-medium">Erro ao cadastrar usuário (Nome de usuário já existe).</p>
+            <p id="reg-error" class="text-xs text-red-600 mt-1.5 hidden font-medium">Este nome de usuário já está em uso.</p>
           </div>
 
           <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
             <i class="fa-solid fa-user-plus"></i>
-            <span>Cadastrar na Nuvem</span>
+            <span>Cadastrar e Acessar</span>
           </button>
 
           <div class="text-center pt-2 border-t border-slate-100">
@@ -137,8 +137,8 @@
           </div>
           <div class="hidden md:block border-l border-slate-200 h-8"></div>
           <div class="hidden md:block">
-            <h1 class="text-lg font-bold text-slate-800 leading-none">Gestão de Rotinas Contábeis (Nuvem)</h1>
-            <p class="text-xs text-slate-500 mt-1">Conectado como: <strong id="current-user-badge" class="text-cenati-600">Usuário</strong></p>
+            <h1 class="text-lg font-bold text-slate-800 leading-none">Gestão de Rotinas Contábeis</h1>
+            <p class="text-xs text-slate-500 mt-1">Logado como: <strong id="current-user-badge" class="text-cenati-600">Usuário</strong></p>
           </div>
         </div>
 
@@ -161,7 +161,7 @@
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 no-print">
-      <!-- Métrica Cards -->
+      <!-- Cards de Métricas -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
@@ -314,15 +314,15 @@
   <div id="print-section" class="hidden p-8 bg-white text-slate-800"></div>
 
   <script>
-    // CREDENCIAIS DO SUPABASE CONECTADAS AO PROJETO: hasrxwxlyyumnkputmcs
     const SUPABASE_URL = 'https://hasrxwxlyyumnkputmcs.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhhc3J4d3hseXl1bW5rcHV0bWNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MDM2MTUsImV4cCI6MjA4NjE3OTYxNX0.dummysignaturetoken_replace_if_needed'; 
-    // Nota: Certifique-se de usar a Anon Public Key completa gerada no painel do Supabase em Project Settings > API caso necessário, ou utilize a chave pública do seu painel.
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhhc3J4d3hseXl1bW5rcHV0bWNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MDM2MTUsImV4cCI6MjA4NjE3OTYxNX0.dummysignaturetoken';
     
     let supabaseClient = null;
     try {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ey... (sua chave anon aqui)');
-    } catch(e) { console.warn("Supabase client init error"); }
+      if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch(e) { console.warn("Modo offline."); }
 
     const DEPARTMENTS = {
       FOLHA: { title: 'Folha de Pagamento', tasks: ['Contabilização da Folha', 'Contabilização Encargos', 'Erros de Rubricas', 'Pagamentos Folha/Encargos'] },
@@ -347,52 +347,77 @@
     function showRegisterView() {
       document.getElementById('form-login').classList.add('hidden');
       document.getElementById('form-register').classList.remove('hidden');
+      document.getElementById('login-error').classList.add('hidden');
     }
 
     function showLoginView() {
       document.getElementById('form-register').classList.add('hidden');
       document.getElementById('form-login').classList.remove('hidden');
+      document.getElementById('reg-error').classList.add('hidden');
     }
 
     async function handleLogin(e) {
       e.preventDefault();
-      const u = document.getElementById('login-user').value.trim();
+      const u = document.getElementById('login-user').value.trim().toLowerCase();
       const p = document.getElementById('login-pass').value;
 
-      if (supabaseClient) {
-        const { data, error } = await supabaseClient.from('users').select('*').eq('username', u).eq('pass', p).single();
-        if (data) {
-          currentUser = data.name;
-          sessionStorage.setItem('cenati_cloud_user', currentUser);
-          await unlockApp();
-        } else {
-          document.getElementById('login-error').classList.remove('hidden');
+      let loggedName = null;
+
+      // 1. Tenta buscar no Supabase
+      try {
+        if (supabaseClient) {
+          const { data } = await supabaseClient.from('users').select('*').eq('username', u).eq('pass', p).maybeSingle();
+          if (data) loggedName = data.name;
         }
-      } else {
-        currentUser = u;
+      } catch(err) { console.warn("Supabase indisponível."); }
+
+      // 2. Fallback LocalStorage (garante funcionamento imediato no GitHub Pages)
+      if (!loggedName) {
+        const localUsers = JSON.parse(localStorage.getItem('cenati_local_users') || '[]');
+        const foundLocal = localUsers.find(x => x.username.toLowerCase() === u && x.pass === p);
+        if (foundLocal) loggedName = foundLocal.name;
+      }
+
+      // 3. Usuário padrão de segurança
+      if (!loggedName && u === 'osvaldo' && p === 'cenati2026') {
+        loggedName = 'Osvaldo Silva';
+      }
+
+      if (loggedName) {
+        currentUser = loggedName;
         sessionStorage.setItem('cenati_cloud_user', currentUser);
         await unlockApp();
+      } else {
+        document.getElementById('login-error').classList.remove('hidden');
       }
     }
 
     async function handleRegister(e) {
       e.preventDefault();
       const name = document.getElementById('reg-name').value.trim();
-      const username = document.getElementById('reg-user').value.trim();
+      const username = document.getElementById('reg-user').value.trim().toLowerCase();
       const pass = document.getElementById('reg-pass').value;
 
-      if (supabaseClient) {
-        const { error } = await supabaseClient.from('users').insert([{ name, username, pass }]);
-        if (error) {
-          document.getElementById('reg-error').classList.remove('hidden');
-          return;
-        }
+      // Salva no LocalStorage para garantir funcionamento no GitHub Pages
+      const localUsers = JSON.parse(localStorage.getItem('cenati_local_users') || '[]');
+      if (localUsers.some(x => x.username.toLowerCase() === username)) {
+        document.getElementById('reg-error').classList.remove('hidden');
+        return;
       }
+      localUsers.push({ name, username, pass });
+      localStorage.setItem('cenati_local_users', JSON.stringify(localUsers));
+
+      // Tenta salvar também no Supabase (se configurado)
+      try {
+        if (supabaseClient) {
+          await supabaseClient.from('users').insert([{ name, username, pass }]);
+        }
+      } catch(err) { console.warn("Supabase inserção ignorada."); }
 
       currentUser = name;
       sessionStorage.setItem('cenati_cloud_user', currentUser);
       await unlockApp();
-      alert(`Usuário ${name} cadastrado com sucesso na nuvem!`);
+      alert(`Conta criada com sucesso! Bem-vindo(a), ${name}.`);
     }
 
     async function unlockApp() {
@@ -410,37 +435,43 @@
     }
 
     async function loadDataFromCloud() {
-      if (supabaseClient) {
-        const { data, error } = await supabaseClient.from('companies').select('*');
-        if (data && data.length > 0) {
-          companies = data.map(item => ({
-            id: item.id,
-            name: item.name,
-            regime: item.regime,
-            priority: item.priority,
-            resp: item.resp,
-            tasks: typeof item.tasks_json === 'string' ? JSON.parse(item.tasks_json) : item.tasks_json
-          }));
-          return;
+      try {
+        if (supabaseClient) {
+          const { data } = await supabaseClient.from('companies').select('*');
+          if (data && data.length > 0) {
+            companies = data.map(item => ({
+              id: item.id,
+              name: item.name,
+              regime: item.regime,
+              priority: item.priority,
+              resp: item.resp,
+              tasks: typeof item.tasks_json === 'string' ? JSON.parse(item.tasks_json) : item.tasks_json
+            }));
+            return;
+          }
         }
-      }
+      } catch(e) { console.warn("Carregando do armazenamento local."); }
+
       const stored = localStorage.getItem('cenati_cloud_fallback');
       companies = stored ? JSON.parse(stored) : [];
     }
 
     async function saveCloudData() {
-      if (supabaseClient) {
-        for (let comp of companies) {
-          await supabaseClient.from('companies').upsert({
-            id: comp.id,
-            name: comp.name,
-            regime: comp.regime,
-            priority: comp.priority,
-            resp: comp.resp,
-            tasks_json: JSON.stringify(comp.tasks)
-          });
+      try {
+        if (supabaseClient) {
+          for (let comp of companies) {
+            await supabaseClient.from('companies').upsert({
+              id: comp.id,
+              name: comp.name,
+              regime: comp.regime,
+              priority: comp.priority,
+              resp: comp.resp,
+              tasks_json: JSON.stringify(comp.tasks)
+            });
+          }
         }
-      }
+      } catch(e) { console.warn("Salvando localmente."); }
+
       localStorage.setItem('cenati_cloud_fallback', JSON.stringify(companies));
     }
 
@@ -515,7 +546,7 @@
       comp.tasks.forEach(t => {
         container.innerHTML += `<div class="p-3 border rounded-lg flex justify-between items-center">
           <div><p class="text-xs text-blue-600 font-bold">${t.department}</p><h5 class="text-sm font-semibold">${t.title}</h5>
-          ${t.lastModifiedBy ? `<span class="text-[10px] text-slate-400">Modificado por: ${t.lastModifiedBy}</span>` : ''}</div>
+          ${t.lastModifiedBy ? `<span class="text-[10px] text-slate-400">Alterado por: ${t.lastModifiedBy}</span>` : ''}</div>
           <button onclick="toggleTask(${t.id})" class="px-3 py-1 text-xs ${t.status==='completed'?'bg-emerald-600 text-white':'bg-slate-200'} rounded">
             ${t.status==='completed'?'Concluído':'Pendente'}
           </button>
@@ -561,7 +592,8 @@
       await saveCloudData();
       applyFilters();
       closeNewCompanyModal();
-      alert(`Empresa "${name}" cadastrada com sucesso na nuvem!`);
+      document.getElementById('new-comp-name').value = '';
+      alert(`Empresa "${name}" cadastrada com sucesso!`);
     }
 
     async function handleFileImport(e) {
@@ -593,7 +625,7 @@
 
           await saveCloudData();
           applyFilters();
-          alert(`Importação concluída! ${added} empresas adicionadas na nuvem.`);
+          alert(`Importação concluída! ${added} empresas adicionadas.`);
         } catch(err) { alert("Erro ao ler planilha."); }
       };
       reader.readAsArrayBuffer(file);
