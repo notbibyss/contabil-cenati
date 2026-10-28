@@ -21,14 +21,18 @@
       theme: {
         extend: {
           colors: {
-            cenatiBG: '#BDE0FE',
+            cenatiBG: '#F2D53C',
+            cenatiDark: '#344E8A',
+            cenatiBlue: '#00A9D2',
+            cenatiYellow: '#F2D53C',
+            cenatiGreen: '#78B941',
             cenati: {
-              50: '#f0f5ff',
-              100: '#e0ebff',
-              500: '#2563eb',
-              600: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
+              50: '#e6f4f8',
+              100: '#bce5ef',
+              500: '#00A9D2',
+              600: '#344E8A',
+              800: '#233461',
+              900: '#1b2a4e',
             }
           }
         }
@@ -36,7 +40,7 @@
     }
   </script>
   <style>
-    body { background-color: #BDE0FE !important; }
+    body { background-color: #f8fafc !important; }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -52,14 +56,14 @@
 <body class="font-sans min-h-screen flex flex-col">
 
   <!-- TELA DE LOGIN / CADASTRO -->
-  <div id="login-overlay" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div id="login-overlay" class="fixed inset-0 bg-[#344E8A]/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
-      <div class="bg-cenati-900 text-white px-8 py-6 text-center space-y-2">
-        <div class="w-16 h-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold">
+      <div class="bg-[#344E8A] text-white px-8 py-6 text-center space-y-2 border-b-4 border-[#F2D53C]">
+        <div class="w-16 h-16 bg-[#00A9D2]/20 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold text-[#F2D53C]">
           <i class="fa-solid fa-shield-halved"></i>
         </div>
         <h2 class="text-xl font-bold">Cenati Contabilidade</h2>
-        <p class="text-xs text-slate-300">Controle de Acesso e Auditoria</p>
+        <p class="text-xs text-slate-200">Controle de Rotinas e Auditoria</p>
       </div>
 
       <div class="p-8">
@@ -69,7 +73,7 @@
             <label class="block text-xs font-semibold text-slate-700 mb-1">Nome de Usuário</label>
             <div class="relative">
               <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400 text-sm"></i>
-              <input type="text" id="login-user" required placeholder="Seu usuário..." class="w-full pl-10 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <input type="text" id="login-user" required placeholder="Seu usuário..." class="w-full pl-10 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00A9D2] focus:outline-none">
             </div>
           </div>
 
@@ -77,18 +81,18 @@
             <label class="block text-xs font-semibold text-slate-700 mb-1">Senha</label>
             <div class="relative">
               <i class="fa-solid fa-key absolute left-3 top-3 text-slate-400 text-sm"></i>
-              <input type="password" id="login-pass" required placeholder="Sua senha..." class="w-full pl-10 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+              <input type="password" id="login-pass" required placeholder="Sua senha..." class="w-full pl-10 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00A9D2] focus:outline-none">
             </div>
             <p id="login-error" class="text-xs text-red-600 mt-1.5 hidden font-medium">Usuário ou senha incorretos.</p>
           </div>
 
-          <button type="submit" class="w-full py-2.5 bg-cenati-600 hover:bg-cenati-700 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+          <button type="submit" class="w-full py-2.5 bg-[#344E8A] hover:bg-[#233461] text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
             <i class="fa-solid fa-right-to-bracket"></i>
             <span>Entrar no Sistema</span>
           </button>
 
           <div class="text-center pt-2 border-t border-slate-100">
-            <button type="button" onclick="showRegisterView()" class="text-xs text-cenati-600 hover:underline font-semibold">
+            <button type="button" onclick="showRegisterView()" class="text-xs text-[#00A9D2] hover:underline font-semibold">
               Não tem cadastro? Crie sua conta aqui
             </button>
           </div>
@@ -98,27 +102,27 @@
         <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Nome Completo</label>
-            <input type="text" id="reg-name" required placeholder="Ex: Osvaldo Silva" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+            <input type="text" id="reg-name" required placeholder="Ex: Osvaldo Silva" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00A9D2] focus:outline-none">
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Nome de Usuário (Login)</label>
-            <input type="text" id="reg-user" required placeholder="Ex: osvaldo" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+            <input type="text" id="reg-user" required placeholder="Ex: osvaldo" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00A9D2] focus:outline-none">
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Senha</label>
-            <input type="password" id="reg-pass" required placeholder="Crie uma senha..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cenati-500 focus:outline-none">
+            <input type="password" id="reg-pass" required placeholder="Crie uma senha..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00A9D2] focus:outline-none">
             <p id="reg-error" class="text-xs text-red-600 mt-1.5 hidden font-medium">Este nome de usuário já está em uso.</p>
           </div>
 
-          <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+          <button type="submit" class="w-full py-2.5 bg-[#78B941] hover:bg-[#68a237] text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
             <i class="fa-solid fa-user-plus"></i>
             <span>Cadastrar e Acessar</span>
           </button>
 
           <div class="text-center pt-2 border-t border-slate-100">
-            <button type="button" onclick="showLoginView()" class="text-xs text-cenati-600 hover:underline font-semibold">
+            <button type="button" onclick="showLoginView()" class="text-xs text-[#00A9D2] hover:underline font-semibold">
               Já possui cadastro? Faça o login
             </button>
           </div>
@@ -129,31 +133,31 @@
 
   <!-- APLICAÇÃO PRINCIPAL -->
   <div id="app-container" class="min-h-screen flex flex-col hidden">
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
+    <header class="bg-[#344E8A] border-b-4 border-[#F2D53C] sticky top-0 z-30 shadow-md no-print text-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-3">
-            <img id="cenati-logo-img" src="./Files/logo-cenati.jpeg" alt="Cenati Contabilidade" class="h-14 w-auto object-contain rounded-lg" onerror="this.onerror=null; this.src='./Files/CAPA CENATI.png';">
+          <div class="flex items-center space-x-3 bg-white p-2 rounded-xl shadow">
+            <span class="text-[#344E8A] font-black text-xl tracking-wider">CENATI</span>
           </div>
-          <div class="hidden md:block border-l border-slate-200 h-8"></div>
+          <div class="hidden md:block border-l border-white/20 h-8"></div>
           <div class="hidden md:block">
-            <h1 class="text-lg font-bold text-slate-800 leading-none">Gestão de Rotinas Contábeis</h1>
-            <p class="text-xs text-slate-500 mt-1">Logado como: <strong id="current-user-badge" class="text-cenati-600">Usuário</strong></p>
+            <h1 class="text-lg font-bold leading-none text-white">Gestão de Rotinas Contábeis</h1>
+            <p class="text-xs text-slate-200 mt-1">Logado como: <strong id="current-user-badge" class="text-[#F2D53C]">Usuário</strong></p>
           </div>
         </div>
 
         <div class="flex items-center space-x-3">
           <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleFileImport(event)" class="hidden">
-          <button id="btn-import" onclick="document.getElementById('excel-file-input').click()" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+          <button id="btn-import" onclick="document.getElementById('excel-file-input').click()" class="inline-flex items-center gap-2 bg-[#00A9D2] hover:bg-[#008fb3] text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
             <i class="fa-solid fa-file-import"></i><span>Importar Planilha</span>
           </button>
-          <button id="btn-new-company" onclick="openNewCompanyModal()" class="inline-flex items-center gap-2 bg-cenati-600 hover:bg-cenati-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+          <button id="btn-new-company" onclick="openNewCompanyModal()" class="inline-flex items-center gap-2 bg-[#78B941] hover:bg-[#68a237] text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
             <i class="fa-solid fa-plus"></i><span>Nova Empresa</span>
           </button>
-          <button onclick="exportTasksPDF()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+          <button onclick="exportTasksPDF()" class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
             <i class="fa-solid fa-file-pdf"></i><span>Relatório (PDF)</span>
           </button>
-          <button onclick="logout()" title="Sair da Conta" class="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-colors">
+          <button onclick="logout()" title="Sair da Conta" class="p-2 text-white/70 hover:text-red-400 hover:bg-white/10 rounded-lg transition-colors">
             <i class="fa-solid fa-power-off text-base"></i>
           </button>
         </div>
@@ -163,46 +167,47 @@
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 no-print">
       <!-- Cards de Métricas -->
       <div id="metrics-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between border-l-4 border-l-[#344E8A]">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Empresas</p>
             <h3 id="stat-total-empresas" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-blue-50 text-cenati-600 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-building"></i></div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#344E8A] flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-building"></i></div>
         </div>
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between border-l-4 border-l-[#78B941]">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Taxa de Conformidade</p>
-            <h3 id="stat-conformidade" class="text-2xl font-bold text-emerald-600 mt-1">0%</h3>
+            <h3 id="stat-conformidade" class="text-2xl font-bold text-[#78B941] mt-1">0%</h3>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-[#78B941] flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-circle-check"></i></div>
         </div>
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between border-l-4 border-l-[#F2D53C]">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tarefas Pendentes</p>
             <h3 id="stat-pendentes" class="text-2xl font-bold text-amber-500 mt-1">0</h3>
           </div>
           <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-clock-rotate-left"></i></div>
         </div>
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between border-l-4 border-l-[#00A9D2]">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tempo Total Registrado</p>
-            <h3 id="stat-tempo-total" class="text-2xl font-bold text-cenati-800 mt-1">0h 0m</h3>
+            <h3 id="stat-tempo-total" class="text-2xl font-bold text-[#00A9D2] mt-1">0h 0m</h3>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-stopwatch"></i></div>
+          <div class="w-12 h-12 rounded-xl bg-cyan-50 text-[#00A9D2] flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-stopwatch"></i></div>
         </div>
       </div>
 
       <!-- Tabela principal -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <!-- Filtros e Barra de Ações -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">Buscar Empresa / CNPJ</label>
-            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Nome ou CNPJ..." class="w-full px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg">
+            <input type="text" id="filter-search" placeholder="Nome ou CNPJ..." class="w-full px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00A9D2] focus:outline-none">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">Regime Tributário</label>
-            <select id="filter-regime" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg">
+            <select id="filter-regime" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg">
               <option value="">Todos</option>
               <option value="Simples Nacional">Simples Nacional</option>
               <option value="Lucro Presumido">Lucro Presumido</option>
@@ -211,26 +216,37 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">Responsável</label>
-            <select id="filter-responsavel" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg">
+            <select id="filter-responsavel" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg">
               <option value="">Todos</option>
             </select>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">Status</label>
-            <select id="filter-status" onchange="applyFilters()" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg">
+            <select id="filter-status" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg">
               <option value="">Todas</option>
               <option value="100%">100% Concluídas</option>
               <option value="pendente">Com Pendências</option>
             </select>
           </div>
-          <div class="flex items-end">
-            <button onclick="clearFilters()" class="w-full py-1.5 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium rounded-lg">Limpar</button>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Ordem Alfabética</label>
+            <select id="filter-order" class="w-full py-1.5 px-3 text-sm bg-white border border-slate-300 rounded-lg">
+              <option value="asc">A - Z</option>
+              <option value="desc">Z - A</option>
+            </select>
+          </div>
+          <div class="flex items-end gap-2">
+            <button onclick="applyFilters()" class="flex-1 py-1.5 px-3 bg-[#344E8A] hover:bg-[#233461] text-white text-sm font-medium rounded-lg shadow transition">
+              <i class="fa-solid fa-filter mr-1"></i> Filtrar
+            </button>
+            <button onclick="clearFilters()" class="py-1.5 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium rounded-lg">Limpar</button>
           </div>
         </div>
 
+        <!-- Tabela -->
         <div class="overflow-x-auto rounded-xl border border-slate-200">
           <table class="w-full text-left text-sm">
-            <thead class="bg-slate-100 text-slate-700 font-semibold border-b uppercase text-xs">
+            <thead class="bg-[#344E8A] text-white font-semibold border-b uppercase text-xs">
               <tr>
                 <th class="py-3.5 px-4">Empresa / CNPJ</th>
                 <th class="py-3.5 px-3">Regime / Contato</th>
@@ -243,43 +259,53 @@
             <tbody id="companies-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
           </table>
         </div>
+
+        <!-- Paginação (10 por página) -->
+        <div class="flex items-center justify-between pt-2">
+          <p id="pagination-info" class="text-xs text-slate-500">Exibindo 0 de 0 empresas</p>
+          <div class="flex items-center space-x-2">
+            <button onclick="changePage(-1)" id="prev-page-btn" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg disabled:opacity-50">Anterior</button>
+            <span id="page-indicator" class="text-xs font-bold text-slate-700 px-2">Página 1 de 1</span>
+            <button onclick="changePage(1)" id="next-page-btn" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg disabled:opacity-50">Próxima</button>
+          </div>
+        </div>
       </div>
     </main>
   </div>
 
   <!-- MODAL DE TAREFAS -->
   <div id="modal-company" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border-t-4 border-[#344E8A]">
+      <div class="bg-[#344E8A] text-white px-6 py-4 flex items-center justify-between">
         <div>
           <h3 id="modal-company-name" class="text-lg font-bold">Empresa</h3>
-          <p id="modal-company-info" class="text-xs text-slate-300">Detalhes</p>
+          <p id="modal-company-info" class="text-xs text-slate-200">Detalhes</p>
         </div>
-        <button onclick="closeCompanyModal()" class="text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeCompanyModal()" class="text-white/80 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="p-6 overflow-y-auto flex-1 space-y-6 custom-scrollbar" id="modal-tasks-list"></div>
       <div class="bg-slate-50 border-t px-6 py-3 flex justify-between items-center text-xs text-slate-500">
         <div>Tempo total: <strong id="modal-total-time" class="text-slate-800 text-sm">0m 0s</strong></div>
-        <button onclick="closeCompanyModal()" class="px-4 py-2 bg-slate-800 text-white rounded-lg">Fechar</button>
+        <button onclick="closeCompanyModal()" class="px-4 py-2 bg-[#344E8A] text-white rounded-lg">Fechar</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL PARA CADASTRAR NOVA EMPRESA -->
   <div id="modal-add-company" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
-      <div class="bg-cenati-900 text-white px-6 py-4 flex items-center justify-between">
-        <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-building-circle-check"></i> Cadastrar Nova Empresa</h3>
-        <button onclick="closeNewCompanyModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border-t-4 border-[#78B941]">
+      <div class="bg-[#344E8A] text-white px-6 py-4 flex items-center justify-between">
+        <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-building-circle-check text-[#F2D53C]"></i> Cadastrar Nova Empresa</h3>
+        <button onclick="closeNewCompanyModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <form onsubmit="saveNewCompany(event)" class="p-6 space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Razão Social / Nome da Empresa *</label>
-          <input type="text" id="new-comp-name" required placeholder="Ex: ABC LTDA" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
+          <input type="text" id="new-comp-name" required placeholder="Ex: ABC LTDA" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00A9D2] focus:outline-none">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">CNPJ *</label>
-          <input type="text" id="new-comp-cnpj" required placeholder="00.000.000/0001-00" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg">
+          <input type="text" id="new-comp-cnpj" required placeholder="00.000.000/0001-00" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#00A9D2] focus:outline-none">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -324,7 +350,7 @@
         </div>
         <div class="flex justify-end gap-2 pt-2 border-t">
           <button type="button" onclick="closeNewCompanyModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs rounded-lg">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-cenati-600 text-white text-xs rounded-lg">Salvar Empresa</button>
+          <button type="submit" class="px-4 py-2 bg-[#78B941] text-white text-xs rounded-lg font-bold">Salvar Empresa</button>
         </div>
       </form>
     </div>
@@ -352,6 +378,8 @@
 
     let companies = [];
     let filteredCompanies = [];
+    let currentPage = 1;
+    const pageSize = 10;
     let currentUser = null;
     let selectedCompanyId = null;
 
@@ -382,7 +410,6 @@
 
       let loggedName = null;
 
-      // 1. Tenta buscar no Supabase
       try {
         if (supabaseClient) {
           const { data } = await supabaseClient.from('users').select('*').eq('username', u).eq('pass', p).maybeSingle();
@@ -390,14 +417,12 @@
         }
       } catch(err) { console.warn("Supabase indisponível."); }
 
-      // 2. Fallback LocalStorage
       if (!loggedName) {
         const localUsers = JSON.parse(localStorage.getItem('cenati_local_users') || '[]');
         const foundLocal = localUsers.find(x => x.username.toLowerCase() === u && x.pass === p);
         if (foundLocal) loggedName = foundLocal.name;
       }
 
-      // 3. Usuários padrão de segurança (Incluindo Thainá)
       if (!loggedName && u === 'osvaldo' && p === 'cenati2026') loggedName = 'Osvaldo Silva';
       if (!loggedName && u === 'thaina' && p === '123456') loggedName = 'Thainá';
 
@@ -441,7 +466,6 @@
       document.getElementById('app-container').classList.remove('hidden');
       document.getElementById('current-user-badge').textContent = currentUser;
       
-      // Restrição de acesso para Thainá (Apenas empresas e Solicitações de Documentos)
       if (currentUser.toLowerCase() === 'thainá' || currentUser.toLowerCase() === 'thaina') {
         document.getElementById('btn-import').style.display = 'none';
         document.getElementById('metrics-cards').style.display = 'none';
@@ -511,6 +535,7 @@
       const regime = document.getElementById('filter-regime').value;
       const resp = document.getElementById('filter-responsavel').value;
       const status = document.getElementById('filter-status').value;
+      const order = document.getElementById('filter-order').value;
 
       filteredCompanies = companies.filter(comp => {
         const matchesSearch = comp.name.toLowerCase().includes(search) || (comp.cnpj && comp.cnpj.toLowerCase().includes(search));
@@ -528,6 +553,13 @@
         return matchesSearch && matchesRegime && matchesResp && matchesStatus;
       });
 
+      // Ordenação Alfabética
+      filteredCompanies.sort((a, b) => {
+        if (order === 'asc') return a.name.localeCompare(b.name);
+        return b.name.localeCompare(a.name);
+      });
+
+      currentPage = 1;
       renderTable();
       updateDashboardMetrics();
     }
@@ -537,38 +569,73 @@
       document.getElementById('filter-regime').value = '';
       document.getElementById('filter-responsavel').value = '';
       document.getElementById('filter-status').value = '';
+      document.getElementById('filter-order').value = 'asc';
       applyFilters();
     }
 
     function renderTable() {
       const tbody = document.getElementById('companies-table-body');
       tbody.innerHTML = '';
+      
       if (filteredCompanies.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Nenhuma empresa encontrada. Importe uma planilha ou cadastre uma nova.</td></tr>`;
+        document.getElementById('pagination-info').textContent = 'Exibindo 0 de 0 empresas';
+        document.getElementById('page-indicator').textContent = 'Página 1 de 1';
+        document.getElementById('prev-page-btn').disabled = true;
+        document.getElementById('next-page-btn').disabled = true;
         return;
       }
-      filteredCompanies.forEach(comp => {
+
+      const totalPages = Math.ceil(filteredCompanies.length / pageSize);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const paginatedItems = filteredCompanies.slice(start, end);
+
+      paginatedItems.forEach(comp => {
         const completed = comp.tasks.filter(t => t.status === 'completed').length;
         const percent = comp.tasks.length ? Math.round((completed / comp.tasks.length) * 100) : 0;
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50";
+        tr.className = "hover:bg-slate-50 transition";
         tr.innerHTML = `
           <td class="py-3 px-4">
             <div class="font-semibold text-slate-800">${comp.name}</div>
             <div class="text-xs text-slate-500 font-mono">CNPJ: ${comp.cnpj || 'Não informado'}</div>
           </td>
           <td class="py-3 px-3">
-            <span class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-lg inline-block mb-1">${comp.regime}</span>
-            <div class="text-xs text-slate-500">${comp.tel || ''} | ${comp.email || ''}</div>
+            <span class="px-2 py-1 text-xs bg-cyan-50 text-[#00A9D2] font-medium rounded-lg inline-block mb-1">${comp.regime}</span>
+            <div class="text-xs text-slate-500">${comp.tel || ''} ${comp.email ? '| ' + comp.email : ''}</div>
           </td>
-          <td class="py-3 px-3">${comp.priority}</td>
-          <td class="py-3 px-3">${comp.resp}</td>
-          <td class="py-3 px-3 text-center"><b>${percent}%</b></td>
+          <td class="py-3 px-3"><span class="px-2 py-0.5 bg-slate-100 rounded text-xs font-bold">${comp.priority}</span></td>
+          <td class="py-3 px-3 font-medium text-slate-700">${comp.resp}</td>
           <td class="py-3 px-3 text-center">
-            <button onclick="openCompanyModal(${comp.id})" class="px-3 py-1.5 text-xs bg-cenati-50 text-cenati-600 hover:bg-cenati-600 hover:text-white rounded-lg">Gerenciar</button>
+            <div class="flex items-center justify-center gap-2">
+              <div class="w-20 bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div class="bg-[#78B941] h-2 rounded-full" style="width: ${percent}%"></div>
+              </div>
+              <b class="text-xs text-slate-700">${percent}%</b>
+            </div>
+          </td>
+          <td class="py-3 px-3 text-center">
+            <button onclick="openCompanyModal(${comp.id})" class="px-3 py-1.5 text-xs bg-[#344E8A] hover:bg-[#233461] text-white rounded-lg shadow transition">
+              <i class="fa-solid fa-list-check mr-1"></i> Gerenciar
+            </button>
           </td>`;
         tbody.appendChild(tr);
       });
+
+      // Atualizar Rodapé da Paginação
+      document.getElementById('pagination-info').textContent = `Exibindo ${start + 1} a ${Math.min(end, filteredCompanies.length)} de ${filteredCompanies.length} empresas`;
+      document.getElementById('page-indicator').textContent = `Página ${currentPage} de ${totalPages || 1}`;
+      document.getElementById('prev-page-btn').disabled = currentPage === 1;
+      document.getElementById('next-page-btn').disabled = currentPage >= totalPages;
+    }
+
+    function changePage(direction) {
+      currentPage += direction;
+      renderTable();
     }
 
     function openCompanyModal(id) {
@@ -581,17 +648,19 @@
       const container = document.getElementById('modal-tasks-list');
       container.innerHTML = '';
       
-      // Se for a Thainá, exibe apenas o departamento de SOLICITAÇÕES DE DOCUMENTOS
       const isThaina = currentUser.toLowerCase() === 'thainá' || currentUser.toLowerCase() === 'thaina';
 
       comp.tasks.forEach(t => {
         if (isThaina && t.department !== 'SOLICITACOES') return;
 
-        container.innerHTML += `<div class="p-3 border rounded-lg flex justify-between items-center">
-          <div><p class="text-xs text-blue-600 font-bold">${t.department}</p><h5 class="text-sm font-semibold">${t.title}</h5>
-          ${t.lastModifiedBy ? `<span class="text-[10px] text-slate-400">Alterado por: ${t.lastModifiedBy}</span>` : ''}</div>
-          <button onclick="toggleTask(${t.id})" class="px-3 py-1 text-xs ${t.status==='completed'?'bg-emerald-600 text-white':'bg-slate-200'} rounded">
-            ${t.status==='completed'?'Concluído':'Pendente'}
+        container.innerHTML += `<div class="p-3 border rounded-lg flex justify-between items-center bg-white shadow-sm">
+          <div>
+            <p class="text-xs text-[#00A9D2] font-bold uppercase">${t.department}</p>
+            <h5 class="text-sm font-semibold text-slate-800">${t.title}</h5>
+            ${t.lastModifiedBy ? `<span class="text-[10px] text-slate-400">Alterado por: ${t.lastModifiedBy}</span>` : ''}
+          </div>
+          <button onclick="toggleTask(${t.id})" class="px-3 py-1.5 text-xs font-semibold ${t.status==='completed'?'bg-[#78B941] text-white':'bg-slate-200 text-slate-700'} rounded-lg shadow-sm transition">
+            ${t.status==='completed'?'<i class="fa-solid fa-check mr-1"></i> Concluído':'Pendente'}
           </button>
         </div>`;
       });
@@ -609,7 +678,8 @@
       task.lastModifiedBy = currentUser;
       await saveCloudData();
       openCompanyModal(selectedCompanyId);
-      applyFilters();
+      renderTable();
+      updateDashboardMetrics();
     }
 
     function openNewCompanyModal() { document.getElementById('modal-add-company').classList.remove('hidden'); }
@@ -626,7 +696,6 @@
       const priority = parseInt(document.getElementById('new-comp-priority').value);
       const resp = document.getElementById('new-comp-resp').value;
 
-      // TRAVA DE SEGURANÇA POR CNPJ
       if (cnpj && companies.some(c => c.cnpj && c.cnpj.replace(/\D/g, '') === cnpj.replace(/\D/g, ''))) {
         alert(`Erro: Já existe uma empresa cadastrada com o CNPJ ${cnpj}!`);
         return;
@@ -647,6 +716,9 @@
       closeNewCompanyModal();
       document.getElementById('new-comp-name').value = '';
       document.getElementById('new-comp-cnpj').value = '';
+      document.getElementById('new-comp-resp-empresa').value = '';
+      document.getElementById('new-comp-tel').value = '';
+      document.getElementById('new-comp-email').value = '';
       alert(`Empresa "${name}" cadastrada com sucesso!`);
     }
 
@@ -675,7 +747,6 @@
 
             if (!compName || compName.toLowerCase() === 'empresa') return;
 
-            // Trava por CNPJ na importação
             if (cnpj && companies.some(c => c.cnpj && c.cnpj.replace(/\D/g, '') === cnpj.replace(/\D/g, ''))) {
               duplicated++;
               return;
